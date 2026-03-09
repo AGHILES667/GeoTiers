@@ -5,7 +5,7 @@
 #
 
 # Module label 'ModuleGeoTiersName'
-ModuleGeoTiersName = GeoTiers
+ModuleGeoTiersName = Geo Tiers
 # Module description 'ModuleGeoTiersDesc'
 ModuleGeoTiersDesc = Affiche les tiers sur une carte interactive.
 
