@@ -108,82 +108,64 @@ if (!$user->admin) {
 }
 
 
+$uploadDir = DOL_DATA_ROOT . '/geotiers/icons';
+$uploadDirUrl = DOL_URL_ROOT . '/document.php?modulepart=geotiers&file=icons';
+
+if (!is_dir($uploadDir)) {
+	dol_mkdir($uploadDir);
+}
+
+if (GETPOST('save', 'alpha')) {
+	$iconFields = array(
+		'GEOTIERS_ICON_CLIENT' => 'client',
+		'GEOTIERS_ICON_FOURNISSEUR' => 'fournisseur',
+		'GEOTIERS_ICON_PROSPECT' => 'prospect',
+	);
+
+	foreach ($iconFields as $confKey => $suffix) {
+		if (!empty($_FILES[$confKey]['name'])) {
+			$ext = strtolower(pathinfo($_FILES[$confKey]['name'], PATHINFO_EXTENSION));
+
+			if (!in_array($ext, array('png', 'jpg', 'jpeg', 'svg', 'webp', 'gif'))) {
+				setEventMessages('Format non autorisé pour '.$confKey, null, 'errors');
+				continue;
+			}
+
+			$filename = $suffix . '.' . $ext;
+			$dest = $uploadDir . '/' . $filename;
+
+			if (dol_move_uploaded_file($_FILES[$confKey]['tmp_name'], $dest, 0, 0, $_FILES[$confKey]['error'])) {
+				dolibarr_set_const($db, $confKey, 'geotiers/icons/' . $filename, 'chaine', 0, '', $conf->entity);
+			} else {
+				setEventMessages('Erreur upload fichier pour '.$confKey, null, 'errors');
+			}
+		}
+	}
+}
+
 // Enter here all parameters in your setup page
 
 // Setup conf for selection of an URL
-$item = $formSetup->newItem('GEOTIERS_MYPARAM1');
-$item->fieldParams['isMandatory'] = 1;
-$item->fieldAttr['placeholder'] = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST'];
-$item->cssClass = 'minwidth500';
+// ==================================================
+// Paramétrage des icônes carte
+// ==================================================
 
-// Setup conf for selection of a simple string input
-$item = $formSetup->newItem('GEOTIERS_MYPARAM2');
-$item->defaultFieldValue = 'default value';
-$item->fieldAttr['placeholder'] = 'A placeholder here';
-$item->helpText = 'Tooltip text';
+$formSetup->newItem('GEOTIERS_MAP_ICONS_TITLE')->setAsTitle();
 
-// Setup conf for selection of a simple textarea input but we replace the text of field title
-$item = $formSetup->newItem('GEOTIERS_MYPARAM3');
-$item->nameText = $item->getNameText().' more html text ';
+$item = $formSetup->newItem('GEOTIERS_ICON_CLIENT');
+$item->nameText = 'Icône client';
+$item->helpText = 'Image utilisée sur la carte pour les tiers clients';
+$item->fieldOverride = ''; // on gère l'affichage nous-même
 
-// Setup conf for a selection of a Thirdparty
-$item = $formSetup->newItem('GEOTIERS_MYPARAM4');
-$item->setAsThirdpartyType();
+$item = $formSetup->newItem('GEOTIERS_ICON_FOURNISSEUR');
+$item->nameText = 'Icône fournisseur';
+$item->helpText = 'Image utilisée sur la carte pour les tiers fournisseurs';
+$item->fieldOverride = '';
 
-// Setup conf for a selection of a boolean
-$formSetup->newItem('GEOTIERS_MYPARAM5')->setAsYesNo();
-
-// Setup conf for a selection of an Email template of type thirdparty
-$formSetup->newItem('GEOTIERS_MYPARAM6')->setAsEmailTemplate('thirdparty');
-
-// Setup conf for a selection of a secured key
-//$formSetup->newItem('GEOTIERS_MYPARAM7')->setAsSecureKey();
-
-// Setup conf for a selection of a Product
-$formSetup->newItem('GEOTIERS_MYPARAM8')->setAsProduct();
-
-// Add a title for a new section
-$formSetup->newItem('NewSection')->setAsTitle();
-
-$TField = array(
-	'test01' => $langs->trans('test01'),
-	'test02' => $langs->trans('test02'),
-	'test03' => $langs->trans('test03'),
-	'test04' => $langs->trans('test04'),
-	'test05' => $langs->trans('test05'),
-	'test06' => $langs->trans('test06'),
-);
-
-// Setup conf for a simple combo list
-$formSetup->newItem('GEOTIERS_MYPARAM9')->setAsSelect($TField);
-
-// Setup conf for a multiselect combo list
-$item = $formSetup->newItem('GEOTIERS_MYPARAM10');
-$item->setAsMultiSelect($TField);
-$item->helpText = $langs->transnoentities('GEOTIERS_MYPARAM10');
-
-// Setup conf for a category selection
-$formSetup->newItem('GEOTIERS_CATEGORY_ID_XXX')->setAsCategory('product');
-
-// Setup conf GEOTIERS_MYPARAM10
-$item = $formSetup->newItem('GEOTIERS_MYPARAM10');
-$item->setAsColor();
-$item->defaultFieldValue = '#FF0000';
-//$item->fieldValue = '';
-//$item->fieldAttr = array() ; // fields attribute only for compatible fields like input text
-//$item->fieldOverride = false; // set this var to override field output will override $fieldInputOverride and $fieldOutputOverride too
-//$item->fieldInputOverride = false; // set this var to override field input
-//$item->fieldOutputOverride = false; // set this var to override field output
-
-$item = $formSetup->newItem('GEOTIERS_MYPARAM11')->setAsHtml();
-$item->nameText = $item->getNameText().' more html text ';
-$item->fieldInputOverride = '';
-$item->helpText = $langs->transnoentities('HelpMessage');
-$item->cssClass = 'minwidth500';
-
-$item = $formSetup->newItem('GEOTIERS_MYPARAM12');
-$item->fieldOverride = "Value forced, can't be modified";
-$item->cssClass = 'minwidth500';
+$item = $formSetup->newItem('GEOTIERS_ICON_PROSPECT');
+$item->nameText = 'Icône prospect';
+$item->helpText = 'Image utilisée sur la carte pour les tiers prospects';
+$item->fieldOverride = '';
 
 //$item = $formSetup->newItem('GEOTIERS_MYPARAM13')->setAsDate();	// Not yet implemented
 

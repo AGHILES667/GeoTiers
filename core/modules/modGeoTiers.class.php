@@ -119,7 +119,7 @@ class modGeoTiers extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			/* BEGIN MODULEBUILDER HOOKSCONTEXTS */
-			'hooks' => array('thirdpartycard', 'globalcard'),
+			'hooks' => array('thirdpartycard', 'thirdpartylist', 'globalcard'),
 			/* END MODULEBUILDER HOOKSCONTEXTS */
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -286,6 +286,18 @@ class modGeoTiers extends DolibarrModules
 		// Permissions provided by this module
 		$this->rights = array();
 		$r = 0;
+
+		$this->rights[$r][0] = 7100031;
+		$this->rights[$r][1] = 'Voir que mes tiers';
+		$this->rights[$r][3] = 1;
+		$this->rights[$r][4] = 'read';
+
+		$r++;
+
+		$this->rights[$r][0] = 7100032;
+		$this->rights[$r][1] = 'Voir tous les tiers';
+		$this->rights[$r][3] = 0;
+		$this->rights[$r][4] = 'write';
 		// Add here entries to declare new permissions
 		/* BEGIN MODULEBUILDER PERMISSIONS */
 		/*
@@ -321,7 +333,7 @@ class modGeoTiers extends DolibarrModules
 			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle"'),
 			'mainmenu' => 'geotiers',
 			'leftmenu' => '',
-			'url' => '/geotiers/geotiersindex.php',
+			'url' => '/geotiers/geotiers.php',
 			'langs' => 'geotiers@geotiers', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position' => 1000 + $r,
 			'enabled' => 'isModEnabled("geotiers")', // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
@@ -332,23 +344,25 @@ class modGeoTiers extends DolibarrModules
 		/* END MODULEBUILDER TOPMENU */
 
 		/* BEGIN MODULEBUILDER LEFTMENU MYOBJECT */
-		/*
+		
 		$this->menu[$r++]=array(
-			'fk_menu' => 'fk_mainmenu=geotiers',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'fk_menu' => 'fk_mainmenu=companies',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',                          // This is a Left menu entry
-			'titre' => 'MyObject',
+			'titre' => 'Map des tiers',
 			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle paddingright"'),
-			'mainmenu' => 'geotiers',
-			'leftmenu' => 'myobject',
-			'url' => '/geotiers/geotiersindex.php',
+			// 'mainmenu' => 'geotiers',
+			// 'leftmenu' => 'myobject',
+			'url' => '/geotiers/geotiers.php',
 			'langs' => 'geotiers@geotiers',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position' => 1000 + $r,
-			'enabled' => 'isModEnabled("geotiers")', // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
-			'perms' => '$user->hasRight("geotiers", "myobject", "read")',
+			'enabled' => 'isModEnabled("geotiers") && $user->hasRight("geotiers", "read")' , // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
+			'perms' => '$user->hasRight("geotiers", "read")',
 			'target' => '',
 			'user' => 2,				                // 0=Menu for internal users, 1=external users, 2=both
 			'object' => 'MyObject'
 		);
+
+		/*
 		$this->menu[$r++]=array(
 			'fk_menu' => 'fk_mainmenu=geotiers,fk_leftmenu=myobject',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',			                // This is a Left menu entry
