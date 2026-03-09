@@ -12,6 +12,17 @@ if (!$user->id) {
 	exit;
 }
 
+$canRead = !empty($user->rights->geotiers->read);
+$canWrite = !empty($user->rights->geotiers->write);
+
+if (!$canRead && !$canWrite) {
+	echo json_encode(array(
+		'success' => true,
+		'points' => array()
+	));
+	exit;
+}
+
 $tiersRaw = GETPOST('tiers', 'restricthtml');
 $typesRaw = GETPOST('type', 'restricthtml');
 
@@ -38,7 +49,7 @@ if (!empty($typesRaw)) {
 	$typesFilter = array_values(array_unique($typesFilter));
 }
 
-$sql = "SELECT
+$sql = "SELECT DISTINCT
 			s.rowid,
 			s.nom,
 			s.address,
@@ -49,13 +60,22 @@ $sql = "SELECT
 			se.fl_geotiers_lat,
 			se.fl_geotiers_long
 		FROM ".MAIN_DB_PREFIX."societe as s
-		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid
-		WHERE s.entity IN (".getEntity('societe').")
+		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid";
+
+if (!$canWrite && $canRead) {
+	$sql .= " INNER JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON sc.fk_soc = s.rowid";
+}
+
+$sql .= " WHERE s.entity IN (".getEntity('societe').")
 		  AND s.status = 1
 		  AND se.fl_geotiers_lat IS NOT NULL
 		  AND se.fl_geotiers_lat <> ''
 		  AND se.fl_geotiers_long IS NOT NULL
 		  AND se.fl_geotiers_long <> ''";
+
+if (!$canWrite && $canRead) {
+	$sql .= " AND sc.fk_user = ".((int) $user->id);
+}
 
 if (!empty($tiersFilter)) {
 	$sql .= " AND s.rowid IN (".implode(',', $tiersFilter).")";
@@ -63,6 +83,7 @@ if (!empty($tiersFilter)) {
 
 if (!empty($typesFilter)) {
 	$typeConditions = array();
+
 	if (in_array('fournisseur', $typesFilter, true)) {
 		$typeConditions[] = 's.fournisseur > 0';
 	}
@@ -78,8 +99,7 @@ if (!empty($typesFilter)) {
 	}
 }
 
-$sql .= "
-		ORDER BY s.nom ASC";
+$sql .= " ORDER BY s.nom ASC";
 
 $resql = $db->query($sql);
 
@@ -87,7 +107,8 @@ if (!$resql) {
 	http_response_code(500);
 	echo json_encode(array(
 		'success' => false,
-		'error' => $db->lasterror()
+		'error' => $db->lasterror(),
+		'sql' => $sql
 	));
 	exit;
 }
@@ -95,25 +116,18 @@ if (!$resql) {
 $points = array();
 
 while ($obj = $db->fetch_object($resql)) {
-	if ($obj->fl_geotiers_lat === null || $obj->fl_geotiers_lat === '') {
-		continue;
-	}
-	if ($obj->fl_geotiers_long === null || $obj->fl_geotiers_long === '') {
-		continue;
-	}
-
 	$points[] = array(
-	'id' => (int) $obj->rowid,
-	'name' => $obj->nom,
-	'lat' => (float) $obj->fl_geotiers_lat,
-	'lng' => (float) $obj->fl_geotiers_long,
-	'address' => $obj->address,
-	'zip' => $obj->zip,
-	'town' => $obj->town,
-	'url' => DOL_URL_ROOT.'/societe/card.php?socid='.(int) $obj->rowid,
-	'client' => (int) $obj->client,
-	'fournisseur' => (int) $obj->fournisseur
-    );
+		'id' => (int) $obj->rowid,
+		'name' => $obj->nom,
+		'lat' => (float) $obj->fl_geotiers_lat,
+		'lng' => (float) $obj->fl_geotiers_long,
+		'address' => $obj->address,
+		'zip' => $obj->zip,
+		'town' => $obj->town,
+		'url' => DOL_URL_ROOT.'/societe/card.php?socid='.(int) $obj->rowid,
+		'client' => (int) $obj->client,
+		'fournisseur' => (int) $obj->fournisseur
+	);
 }
 
 echo json_encode(array(
