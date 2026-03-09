@@ -66,10 +66,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    async function fetchPoints() {
-        var url = DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php';
+    function getSelectedValues(elementId) {
+        var element = document.getElementById(elementId);
+        if (!element) {
+            return [];
+        }
 
-        var response = await fetch(url, {
+        return Array.from(element.selectedOptions || []).map(function (option) {
+            return option.value;
+        }).filter(function (value) {
+            return value !== '';
+        });
+    }
+
+    function getCurrentFilters() {
+        return {
+            tiers: getSelectedValues('filterTiers'),
+            types: getSelectedValues('filterType')
+        };
+    }
+
+    async function fetchPoints(filters) {
+        var url = new URL(DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php', window.location.origin);
+
+        (filters.tiers || []).forEach(function (tierId) {
+            url.searchParams.append('tiers[]', tierId);
+        });
+
+        (filters.types || []).forEach(function (type) {
+            url.searchParams.append('type[]', type);
+        });
+
+        var response = await fetch(url.toString(), {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -128,65 +156,77 @@ function getPointType(point) {
             return;
         }
 
-        setLoading('Chargement des points...');
-
         var map = L.map('flgeotiers-map');
-        var bounds = L.latLngBounds([]);
+        var markerLayer = L.layerGroup().addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
 
-        try {
-            var rawPoints = await fetchPoints();
+        var iconsConfig = window.flGeoTiersIcons || {};
+        var leafletIcons = {
+            client: buildIcon(iconsConfig.client),
+            fournisseur: buildIcon(iconsConfig.fournisseur),
+            prospect: buildIcon(iconsConfig.prospect)
+        };
 
-            var points = rawPoints.filter(function (point) {
-                return isValidCoordinate(point.lat) && isValidCoordinate(point.lng);
-            });
+        async function refreshMap() {
+            setLoading('Chargement des points...');
 
-            hideLoading();
-            setCount(points.length);
+            try {
+                var rawPoints = await fetchPoints(getCurrentFilters());
+                var points = rawPoints.filter(function (point) {
+                    return isValidCoordinate(point.lat) && isValidCoordinate(point.lng);
+                });
+                var bounds = L.latLngBounds([]);
 
-            if (!points.length) {
-                map.setView([46.603354, 1.888334], 6);
-                return;
-            }
+                markerLayer.clearLayers();
+                hideLoading();
+                setCount(points.length);
 
-            var iconsConfig = window.flGeoTiersIcons || {};
-
-            var leafletIcons = {
-                client: buildIcon(iconsConfig.client),
-                fournisseur: buildIcon(iconsConfig.fournisseur),
-                prospect: buildIcon(iconsConfig.prospect)
-            };
-
-            points.forEach(function (point) {
-                var lat = parseFloat(point.lat);
-                var lng = parseFloat(point.lng);
-
-                var pointType = getPointType(point);
-                var markerOptions = {};
-
-                if (leafletIcons[pointType]) {
-                    markerOptions.icon = leafletIcons[pointType];
+                if (!points.length) {
+                    map.setView([46.603354, 1.888334], 6);
+                    return;
                 }
 
-                var marker = L.marker([lat, lng], markerOptions).addTo(map);
-                marker.bindPopup(buildPopup(point));
+                points.forEach(function (point) {
+                    var lat = parseFloat(point.lat);
+                    var lng = parseFloat(point.lng);
 
-                bounds.extend([lat, lng]);
-            });
+                    var pointType = getPointType(point);
+                    var markerOptions = {};
 
-            if (points.length === 1) {
-                map.setView([parseFloat(points[0].lat), parseFloat(points[0].lng)], 13);
-            } else {
-                map.fitBounds(bounds, { padding: [30, 30] });
+                    if (leafletIcons[pointType]) {
+                        markerOptions.icon = leafletIcons[pointType];
+                    }
+
+                    var marker = L.marker([lat, lng], markerOptions).addTo(markerLayer);
+                    marker.bindPopup(buildPopup(point));
+
+                    bounds.extend([lat, lng]);
+                });
+
+                if (points.length === 1) {
+                    map.setView([parseFloat(points[0].lat), parseFloat(points[0].lng)], 13);
+                } else {
+                    map.fitBounds(bounds, { padding: [30, 30] });
+                }
+            } catch (error) {
+                console.error(error);
+                markerLayer.clearLayers();
+                setLoading('Erreur lors du chargement des points.');
+                map.setView([46.603354, 1.888334], 6);
             }
-        } catch (error) {
-            console.error(error);
-            setLoading('Erreur lors du chargement des points.');
-            map.setView([46.603354, 1.888334], 6);
         }
+
+        await refreshMap();
+
+        ['filterTiers', 'filterType'].forEach(function (elementId) {
+            var element = document.getElementById(elementId);
+            if (element) {
+                element.addEventListener('change', refreshMap);
+            }
+        });
     }
 
     initMap();
