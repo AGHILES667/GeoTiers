@@ -1,0 +1,42 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleGeoTiersName'
+ModuleGeoTiersName = GeoTiers
+# Module description 'ModuleGeoTiersDesc'
+ModuleGeoTiersDesc = Affiche les tiers sur une carte interactive.
+
+#
+# Admin page
+#
+GeoTiersSetup = GeoTiers setup
+Settings = Settings
+GeoTiersSetupPage = GeoTiers setup page
+NewSection=New section
+GEOTIERS_MYPARAM1 = My param 1
+GEOTIERS_MYPARAM1Tooltip = My param 1 tooltip
+GEOTIERS_MYPARAM2=My param 2
+GEOTIERS_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+GeoTiersAbout = About GeoTiers
+GeoTiersAboutPage = GeoTiers about page
+
+#
+# Sample page
+#
+GeoTiersArea = Home GeoTiers
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
