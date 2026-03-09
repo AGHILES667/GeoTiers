@@ -482,57 +482,48 @@ class modGeoTiers extends DolibarrModules
 		dol_include_once('/core/class/extrafields.class.php');
 		$extra = new ExtraFields($db);
 
-		$lat   = 'fl_geotiers_lat';
-		$long  = 'fl_geotiers_long';
+		$fieldName = 'fl_geo';
 		$elementType = 'societe';
 
-		$fields = array(
-			$lat => array(
-				'label' => 'Latitude',
-				'type'  => 'varchar',
-				'help'  => 'Latitude'
-			),
-			$long => array(
-				'label' => 'Longitude',
-				'type'  => 'varchar',
-				'help'  => 'Longitude'
-			)
+		$fieldConfig = array(
+			'label' => 'Coordonnées GPS',
+			'type'  => 'varchar',
+			'help'  => 'Latitude,Longitude'
 		);
 
-		foreach ($fields as $fieldName => $fieldConfig) {
-			// Create extrafield if not exists
-			$resql = $db->query("SELECT rowid FROM ".MAIN_DB_PREFIX."extrafields
-				WHERE elementtype='".$db->escape($elementType)."'
-				AND name='".$db->escape($fieldName)."'");
+		// Check if extrafield exists
+		$resql = $db->query("SELECT rowid FROM ".MAIN_DB_PREFIX."extrafields
+			WHERE elementtype='".$db->escape($elementType)."'
+			AND name='".$db->escape($fieldName)."'");
 
-			if ($resql && $db->num_rows($resql) == 0) {
-				$result = $extra->addExtraField(
-					$fieldName,                  // attrname
-					$fieldConfig['label'],       // label
-					$fieldConfig['type'],        // type
-					100,                         // pos
-					255,                         // size
-					$elementType,                // elementtype
-					0,                           // unique
-					0,                           // required
-					'',                          // default_value
-					'',                          // param
-					1,                           // alwayseditable
-					'',                          // perms
-					3,                           // list
-					$fieldConfig['help']         // help
-				);
+		if ($resql && $db->num_rows($resql) == 0) {
 
-				if ($result <= 0) {
-					return -1;
-				}
+			$result = $extra->addExtraField(
+				$fieldName,                 // attrname
+				$fieldConfig['label'],      // label
+				$fieldConfig['type'],       // type
+				100,                        // pos
+				255,                        // size
+				$elementType,               // elementtype
+				0,                          // unique
+				0,                          // required
+				'',                         // default
+				'',                         // param
+				1,                          // alwayseditable
+				'',                         // perms
+				3,                          // list
+				$fieldConfig['help']        // help
+			);
+
+			if ($result <= 0) {
+				return -1;
 			}
-
-			// Enable extrafield if already exists but was disabled
-			$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 1
-				WHERE elementtype='".$db->escape($elementType)."'
-				AND name='".$db->escape($fieldName)."'");
 		}
+
+		// Enable extrafield
+		$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 1
+			WHERE elementtype='".$db->escape($elementType)."'
+			AND name='".$db->escape($fieldName)."'");
 
 		return $this->_init($sql, $options);
 	}
@@ -551,14 +542,13 @@ class modGeoTiers extends DolibarrModules
 
 		$sql = array();
 
-		$lat   = 'fl_geotiers_lat';
-		$long  = 'fl_geotiers_long';
+		$fieldName = 'fl_geo';
 		$elementType = 'societe';
 
-		// Hide extrafields (we keep data)
+		// Disable extrafield but keep data
 		$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 0
 					WHERE elementtype='".$db->escape($elementType)."'
-					AND name IN ('".$db->escape($lat)."', '".$db->escape($long)."')");
+					AND name='".$db->escape($fieldName)."'");
 
 		return $this->_remove($sql, $options);
 	}

@@ -119,15 +119,12 @@ class ActionsGeoTiers extends CommonHookActions
 					$coords = $this->fetchGps($fullAddress);
 
 					if (!empty($coords['lat']) && !empty($coords['long'])) {
-						// if (empty($_POST['options_fl_geotiers_lat'])) {
-							$_POST['options_fl_geotiers_lat'] = (string) $coords['lat'];
-						// }
-						// if (empty($_POST['options_fl_geotiers_long'])) {
-							$_POST['options_fl_geotiers_long'] = (string) $coords['long'];
-						// }
 
-						$object->array_options['options_fl_geotiers_lat'] = $_POST['options_fl_geotiers_lat'];
-						$object->array_options['options_fl_geotiers_long'] = $_POST['options_fl_geotiers_long'];
+						$geo = $coords['lat'].', '.$coords['long'];
+
+						$_POST['options_fl_geo'] = $geo;
+
+						$object->array_options['options_fl_geo'] = $geo;
 					}
 				}
 			}
