@@ -467,59 +467,63 @@ class modGeoTiers extends DolibarrModules
 	 */
 	public function init($options = '')
 	{
-		global $conf, $langs;
-
-		// Create tables of module at module activation
-		//$result = $this->_load_tables('/install/mysql/', 'geotiers');
-		$result = $this->_load_tables('/geotiers/sql/');
-		if ($result < 0) {
-			return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
-		}
-
-		// Create extrafields during init
-		//include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-		//$extrafields = new ExtraFields($this->db);
-		//$result0=$extrafields->addExtraField('geotiers_separator1', "Separator 1", 'separator', 1,  0, 'thirdparty',   0, 0, '', array('options'=>array(1=>1)), 1, '', 1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result1=$extrafields->addExtraField('geotiers_myattr1', "New Attr 1 label", 'boolean', 1,  3, 'thirdparty',   0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result2=$extrafields->addExtraField('geotiers_myattr2', "New Attr 2 label", 'varchar', 1, 10, 'project',      0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result3=$extrafields->addExtraField('geotiers_myattr3', "New Attr 3 label", 'varchar', 1, 10, 'bank_account', 0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result4=$extrafields->addExtraField('geotiers_myattr4', "New Attr 4 label", 'select',  1,  3, 'thirdparty',   0, 1, '', array('options'=>array('code1'=>'Val1','code2'=>'Val2','code3'=>'Val3')), 1,'', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result5=$extrafields->addExtraField('geotiers_myattr5', "New Attr 5 label", 'text',    1, 10, 'user',         0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-
-		// Permissions
-		$this->remove($options);
+		global $db;
 
 		$sql = array();
 
-		// Document templates
-		$moduledir = dol_sanitizeFileName('geotiers');
-		$myTmpObjects = array();
-		$myTmpObjects['MyObject'] = array('includerefgeneration' => 0, 'includedocgeneration' => 0);
+		dol_include_once('/core/class/extrafields.class.php');
+		$extra = new ExtraFields($db);
 
-		foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
-			if ($myTmpObjectArray['includerefgeneration']) {
-				$src = DOL_DOCUMENT_ROOT.'/install/doctemplates/'.$moduledir.'/template_myobjects.odt';
-				$dirodt = DOL_DATA_ROOT.($conf->entity > 1 ? '/'.$conf->entity : '').'/doctemplates/'.$moduledir;
-				$dest = $dirodt.'/template_myobjects.odt';
+		$lat   = 'fl_geotiers_lat';
+		$long  = 'fl_geotiers_long';
+		$elementType = 'societe';
 
-				if (file_exists($src) && !file_exists($dest)) {
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-					dol_mkdir($dirodt);
-					$result = dol_copy($src, $dest, '0', 0);
-					if ($result < 0) {
-						$langs->load("errors");
-						$this->error = $langs->trans('ErrorFailToCopyFile', $src, $dest);
-						return 0;
-					}
+		$fields = array(
+			$lat => array(
+				'label' => 'Latitude',
+				'type'  => 'varchar',
+				'help'  => 'Latitude'
+			),
+			$long => array(
+				'label' => 'Longitude',
+				'type'  => 'varchar',
+				'help'  => 'Longitude'
+			)
+		);
+
+		foreach ($fields as $fieldName => $fieldConfig) {
+			// Create extrafield if not exists
+			$resql = $db->query("SELECT rowid FROM ".MAIN_DB_PREFIX."extrafields
+				WHERE elementtype='".$db->escape($elementType)."'
+				AND name='".$db->escape($fieldName)."'");
+
+			if ($resql && $db->num_rows($resql) == 0) {
+				$result = $extra->addExtraField(
+					$fieldName,                  // attrname
+					$fieldConfig['label'],       // label
+					$fieldConfig['type'],        // type
+					100,                         // pos
+					255,                         // size
+					$elementType,                // elementtype
+					0,                           // unique
+					0,                           // required
+					'',                          // default_value
+					'',                          // param
+					1,                           // alwayseditable
+					'',                          // perms
+					3,                           // list
+					$fieldConfig['help']         // help
+				);
+
+				if ($result <= 0) {
+					return -1;
 				}
-
-				$sql = array_merge($sql, array(
-					"DELETE FROM ".$this->db->prefix()."document_model WHERE nom = 'standard_".strtolower($myTmpObjectKey)."' AND type = '".$this->db->escape(strtolower($myTmpObjectKey))."' AND entity = ".((int) $conf->entity),
-					"INSERT INTO ".$this->db->prefix()."document_model (nom, type, entity) VALUES('standard_".strtolower($myTmpObjectKey)."', '".$this->db->escape(strtolower($myTmpObjectKey))."', ".((int) $conf->entity).")",
-					"DELETE FROM ".$this->db->prefix()."document_model WHERE nom = 'generic_".strtolower($myTmpObjectKey)."_odt' AND type = '".$this->db->escape(strtolower($myTmpObjectKey))."' AND entity = ".((int) $conf->entity),
-					"INSERT INTO ".$this->db->prefix()."document_model (nom, type, entity) VALUES('generic_".strtolower($myTmpObjectKey)."_odt', '".$this->db->escape(strtolower($myTmpObjectKey))."', ".((int) $conf->entity).")"
-				));
 			}
+
+			// Enable extrafield if already exists but was disabled
+			$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 1
+				WHERE elementtype='".$db->escape($elementType)."'
+				AND name='".$db->escape($fieldName)."'");
 		}
 
 		return $this->_init($sql, $options);
@@ -535,7 +539,19 @@ class modGeoTiers extends DolibarrModules
 	 */
 	public function remove($options = '')
 	{
+		global $db;
+
 		$sql = array();
+
+		$lat   = 'fl_geotiers_lat';
+		$long  = 'fl_geotiers_long';
+		$elementType = 'societe';
+
+		// Hide extrafields (we keep data)
+		$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 0
+					WHERE elementtype='".$db->escape($elementType)."'
+					AND name IN ('".$db->escape($lat)."', '".$db->escape($long)."')");
+
 		return $this->_remove($sql, $options);
 	}
 }
