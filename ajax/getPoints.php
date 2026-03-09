@@ -12,6 +12,32 @@ if (!$user->id) {
 	exit;
 }
 
+$tiersRaw = GETPOST('tiers', 'restricthtml');
+$typesRaw = GETPOST('type', 'restricthtml');
+
+$tiersFilter = array();
+if (!empty($tiersRaw)) {
+	foreach (explode(',', $tiersRaw) as $tierId) {
+		$tierId = (int) trim($tierId);
+		if ($tierId > 0) {
+			$tiersFilter[] = $tierId;
+		}
+	}
+	$tiersFilter = array_values(array_unique($tiersFilter));
+}
+
+$allowedTypes = array('client', 'fournisseur', 'prospect');
+$typesFilter = array();
+if (!empty($typesRaw)) {
+	foreach (explode(',', $typesRaw) as $type) {
+		$type = trim((string) $type);
+		if (in_array($type, $allowedTypes, true)) {
+			$typesFilter[] = $type;
+		}
+	}
+	$typesFilter = array_values(array_unique($typesFilter));
+}
+
 $sql = "SELECT
 			s.rowid,
 			s.nom,
@@ -25,10 +51,34 @@ $sql = "SELECT
 		FROM ".MAIN_DB_PREFIX."societe as s
 		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid
 		WHERE s.entity IN (".getEntity('societe').")
+		  AND s.status = 1
 		  AND se.fl_geotiers_lat IS NOT NULL
 		  AND se.fl_geotiers_lat <> ''
 		  AND se.fl_geotiers_long IS NOT NULL
-		  AND se.fl_geotiers_long <> ''
+		  AND se.fl_geotiers_long <> ''";
+
+if (!empty($tiersFilter)) {
+	$sql .= " AND s.rowid IN (".implode(',', $tiersFilter).")";
+}
+
+if (!empty($typesFilter)) {
+	$typeConditions = array();
+	if (in_array('fournisseur', $typesFilter, true)) {
+		$typeConditions[] = 's.fournisseur > 0';
+	}
+	if (in_array('prospect', $typesFilter, true)) {
+		$typeConditions[] = 's.client IN (2, 3)';
+	}
+	if (in_array('client', $typesFilter, true)) {
+		$typeConditions[] = 's.client IN (1, 3)';
+	}
+
+	if (!empty($typeConditions)) {
+		$sql .= ' AND ('.implode(' OR ', $typeConditions).')';
+	}
+}
+
+$sql .= "
 		ORDER BY s.nom ASC";
 
 $resql = $db->query($sql);
