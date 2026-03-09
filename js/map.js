@@ -87,17 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function fetchPoints(filters) {
-        var url = new URL(DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php', window.location.origin);
+        var params = new URLSearchParams();
 
-        (filters.tiers || []).forEach(function (tierId) {
-            url.searchParams.append('tiers[]', tierId);
-        });
+        params.append('tiers', (filters.tiers || []).join(','));
+        params.append('type', (filters.types || []).join(','));
 
-        (filters.types || []).forEach(function (type) {
-            url.searchParams.append('type[]', type);
-        });
-
-        var response = await fetch(url.toString(), {
+        var response = await fetch(DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php?' + params.toString(), {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'

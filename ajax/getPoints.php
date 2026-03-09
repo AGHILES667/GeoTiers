@@ -12,22 +12,31 @@ if (!$user->id) {
 	exit;
 }
 
-$tiersFilter = GETPOST('tiers', 'array');
-$typesFilter = GETPOST('type', 'array');
+$tiersRaw = GETPOST('tiers', 'restricthtml');
+$typesRaw = GETPOST('type', 'restricthtml');
 
-if (!is_array($tiersFilter)) {
-	$tiersFilter = array();
+$tiersFilter = array();
+if (!empty($tiersRaw)) {
+	foreach (explode(',', $tiersRaw) as $tierId) {
+		$tierId = (int) trim($tierId);
+		if ($tierId > 0) {
+			$tiersFilter[] = $tierId;
+		}
+	}
+	$tiersFilter = array_values(array_unique($tiersFilter));
 }
-if (!is_array($typesFilter)) {
-	$typesFilter = array();
-}
-
-$tiersFilter = array_values(array_filter(array_map('intval', $tiersFilter), function ($id) {
-	return $id > 0;
-}));
 
 $allowedTypes = array('client', 'fournisseur', 'prospect');
-$typesFilter = array_values(array_intersect($allowedTypes, array_map('strval', $typesFilter)));
+$typesFilter = array();
+if (!empty($typesRaw)) {
+	foreach (explode(',', $typesRaw) as $type) {
+		$type = trim((string) $type);
+		if (in_array($type, $allowedTypes, true)) {
+			$typesFilter[] = $type;
+		}
+	}
+	$typesFilter = array_values(array_unique($typesFilter));
+}
 
 $sql = "SELECT
 			s.rowid,
@@ -58,10 +67,10 @@ if (!empty($typesFilter)) {
 		$typeConditions[] = 's.fournisseur > 0';
 	}
 	if (in_array('prospect', $typesFilter, true)) {
-		$typeConditions[] = 's.client = 2';
+		$typeConditions[] = 's.client IN (2, 3)';
 	}
 	if (in_array('client', $typesFilter, true)) {
-		$typeConditions[] = 's.client = 1';
+		$typeConditions[] = 's.client IN (1, 3)';
 	}
 
 	if (!empty($typeConditions)) {
