@@ -45,9 +45,7 @@ print '<link rel="stylesheet" href="' . dol_buildpath('/custom/geotiers/css/map.
 <div class="fiche">
     <div class="flgeotiers-page-title">
         <h1>Carte des tiers géolocalisés</h1>
-    </div>
-
-    <div class="flgeotiers-filters">
+        <div class="flgeotiers-filters">
         <div class="flgeotiers-filter-group">
             <select id="filterTiers" class="flgeotiers-filter-multi" data-label="Tiers" multiple name="tiers[]">
                 <?php foreach ($tiers as $tier): ?>
@@ -65,6 +63,7 @@ print '<link rel="stylesheet" href="' . dol_buildpath('/custom/geotiers/css/map.
                 <option value="prospect">Prospect</option>
             </select>
         </div>
+    </div>
     </div>
 
     <div class="flgeotiers-map-wrapper">
