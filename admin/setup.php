@@ -150,22 +150,22 @@ if (GETPOST('save', 'alpha')) {
 // Paramétrage des icônes carte
 // ==================================================
 
-$formSetup->newItem('GEOTIERS_MAP_ICONS_TITLE')->setAsTitle();
+// $formSetup->newItem('GEOTIERS_MAP_ICONS_TITLE')->setAsTitle();
 
-$item = $formSetup->newItem('GEOTIERS_ICON_CLIENT');
-$item->nameText = 'Icône client';
-$item->helpText = 'Image utilisée sur la carte pour les tiers clients';
-$item->fieldOverride = ''; // on gère l'affichage nous-même
+$item = $formSetup->newItem('GEOTIERS_COLOR_CLIENT');
+$item->nameText = 'Couleur client';
+$item->setAsColor();
+$item->defaultFieldValue = '#1e5469';
 
-$item = $formSetup->newItem('GEOTIERS_ICON_FOURNISSEUR');
-$item->nameText = 'Icône fournisseur';
-$item->helpText = 'Image utilisée sur la carte pour les tiers fournisseurs';
-$item->fieldOverride = '';
+$item = $formSetup->newItem('GEOTIERS_COLOR_FOURNISSEUR');
+$item->nameText = 'Couleur fournisseur';
+$item->setAsColor();
+$item->defaultFieldValue = '#cac723';
 
-$item = $formSetup->newItem('GEOTIERS_ICON_PROSPECT');
-$item->nameText = 'Icône prospect';
-$item->helpText = 'Image utilisée sur la carte pour les tiers prospects';
-$item->fieldOverride = '';
+$item = $formSetup->newItem('GEOTIERS_COLOR_PROSPECT');
+$item->nameText = 'Couleur prospect';
+$item->setAsColor();
+$item->defaultFieldValue = '#d11212';
 
 //$item = $formSetup->newItem('GEOTIERS_MYPARAM13')->setAsDate();	// Not yet implemented
 

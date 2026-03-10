@@ -28,6 +28,7 @@
 
 .fiche {
     position: relative;
+    color:var(--flg-warning)
 }
 
 .fiche::before {
@@ -461,4 +462,141 @@
 .choices__list--dropdown .choices__item.is-selected {
     color: #2563eb !important;
     font-weight: 700;
+}
+
+.filter-divider {
+    width: 1px;
+    height: 50px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+}
+
+.filter-toggles {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toggle-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 14px 6px 8px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.toggle-pill:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.toggle-pill.clients:hover {
+    border-color: var(--color-clients);
+    background: #fff7ed;
+}
+.toggle-pill.fournisseurs:hover {
+    border-color: var(--color-fournisseurs);
+    background: #fff7ed;
+}
+.toggle-pill.prospects:hover {
+    border-color: var(--color-prospects);
+    background: #fff7ed;
+}
+
+.toggle-pill input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-track {
+    width: 32px;
+    height: 18px;
+    background: #cbd5e1;
+    border-radius: 999px;
+    position: relative;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-pill input:checked ~ .toggle-track {
+    background: #3b82f6;
+}
+.toggle-pill.clients input:checked ~ .toggle-track {
+    background-color: var(--color-clients);
+}
+.toggle-pill.fournisseurs input:checked ~ .toggle-track {
+    background-color: var(--color-fournisseurs);
+}
+.toggle-pill.prospects input:checked ~ .toggle-track {
+    background-color: var(--color-prospects);
+}
+
+
+.toggle-pill input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(14px);
+}
+
+.toggle-pill input:checked + .toggle-track + .toggle-label,
+.toggle-pill:has(input:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.toggle-pill.clients input:checked + .toggle-track + .toggle-label,
+.toggle-pill.clients:has(input:checked) {
+    border-color: var(--color-clients);
+    background: #fff7ed;
+}
+
+.toggle-pill.fournisseurs input:checked + .toggle-track + .toggle-label,
+.toggle-pill.fournisseurs:has(input:checked) {
+    border-color: var(--color-fournisseurs);
+    background: #fff7ed;
+}
+
+.toggle-pill.prospects input:checked + .toggle-track + .toggle-label,
+.toggle-pill.prospects:has(input:checked) {
+    border-color: var(--color-prospects);
+    background: #fff7ed;
+}
+
+.toggle-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.toggle-pill:has(input:checked) .toggle-label {
+    color: #2563eb;
+}
+
+.toggle-pill.clients:has(input:checked) .toggle-label {
+    color: var(--color-clients);
+}
+
+
+.toggle-pill.fournisseurs:has(input:checked) .toggle-label {
+    color: var(--color-fournisseurs);
+}
+
+.toggle-pill.prospects:has(input:checked) .toggle-label {
+    color: var(--color-prospects);
 }

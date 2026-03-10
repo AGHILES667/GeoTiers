@@ -86,11 +86,18 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    async function fetchPoints(filters) {
-        var params = new URLSearchParams();
+    async function fetchPoints() {
 
-        params.append('tiers', (filters.tiers || []).join(','));
-        params.append('type', (filters.types || []).join(','));
+        let filters = getFilters();
+
+        let params = new URLSearchParams();
+        params.append('tiers', filters.tiersString);
+        params.append('showProspects', filters.showProspects ? 1 : 0);
+        params.append('showFournisseurs', filters.showFournisseurs ? 1 : 0);
+        params.append('showClients', filters.showClients ? 1 : 0);
+
+        // params.append('tiers', (filters.tiers || []).join(','));
+        // params.append('type', (filters.types || []).join(','));
 
         var response = await fetch(DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php?' + params.toString(), {
             method: 'GET',
@@ -113,18 +120,37 @@ document.addEventListener('DOMContentLoaded', function () {
         return Array.isArray(data.points) ? data.points : [];
     }
 
-    function buildIcon(iconUrl) {
-    if (!iconUrl) {
-        return null;
-    }
+    function buildIcon(iconUrl, color) {
+        if (iconUrl) {
+            return L.icon({
+                iconUrl: iconUrl,
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+        }
 
-    return L.icon({
-        iconUrl: iconUrl,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-    });
-}
+        var fillColor = color || '#eca76a';
+
+        const markerHtmlStyles = `
+        background-color: ${fillColor};
+        width: 23px;
+        height: 23px;
+        display: block;
+        left: -8px;
+        top: -8px;
+        position: relative;
+        border-radius: 16px 16px 0;
+        transform: rotate(45deg);
+        border: 2px solid #FFFFFF;`;
+
+        return L.divIcon({
+            className: '',
+            iconAnchor: [4, 20],
+            popupAnchor: [0, -24],
+            html: `<span style="${markerHtmlStyles}"></span>`
+        });
+    }
 
 function getPointType(point) {
     if (parseInt(point.fournisseur, 10) > 0) {
@@ -139,6 +165,20 @@ function getPointType(point) {
     return 'client';
 }
 
+    function getFilters() {
+        let selectElement = document.getElementById('filterTiers');
+        let selectedValues = Array.from(selectElement.selectedOptions).map(option => option.value);
+
+        let tiersString = selectedValues.join(',');
+
+        return {
+            tiersString: tiersString,
+            showProspects: document.getElementById('filterShowProspects').checked,
+            showFournisseurs: document.getElementById('filterShowFournisseurs').checked,
+            showClients: document.getElementById('filterShowClients').checked
+        };
+    }
+
     async function initMap() {
         var mapContainer = document.getElementById('flgeotiers-map');
         if (!mapContainer) {
@@ -151,6 +191,9 @@ function getPointType(point) {
             return;
         }
 
+        var colors = window.flGeoTiersColors || {};
+        var iconsConfig = window.flGeoTiersIcons || {};
+
         var map = L.map('flgeotiers-map');
         var markerLayer = L.layerGroup().addTo(map);
 
@@ -160,16 +203,16 @@ function getPointType(point) {
 
         var iconsConfig = window.flGeoTiersIcons || {};
         var leafletIcons = {
-            client: buildIcon(iconsConfig.client),
-            fournisseur: buildIcon(iconsConfig.fournisseur),
-            prospect: buildIcon(iconsConfig.prospect)
+            client:      buildIcon(iconsConfig.client,      colors.client),
+            fournisseur: buildIcon(iconsConfig.fournisseur, colors.fournisseur),
+            prospect:    buildIcon(iconsConfig.prospect,    colors.prospect)
         };
 
         async function refreshMap() {
-            setLoading('Chargement des points...');
+            // setLoading('Chargement des points...');
 
             try {
-                var rawPoints = await fetchPoints(getCurrentFilters());
+                var rawPoints = await fetchPoints();
                 var points = rawPoints.filter(function (point) {
                     return isValidCoordinate(point.lat) && isValidCoordinate(point.lng);
                 });
@@ -216,7 +259,7 @@ function getPointType(point) {
 
         await refreshMap();
 
-        ['filterTiers', 'filterType'].forEach(function (elementId) {
+        ['filterTiers', 'filterShowProspects', 'filterShowFournisseurs', 'filterShowClients'].forEach(function (elementId) {
             var element = document.getElementById(elementId);
             if (element) {
                 element.addEventListener('change', refreshMap);

@@ -3,6 +3,8 @@ require '../../main.inc.php';
 
 $langs->loadLangs(array('companies'));
 
+print '<link rel="stylesheet" href="'.DOL_URL_ROOT.'/custom/geotiers/css/map.css">';
+
 llxHeader('', 'Carte des tiers');
 
 // Récupération des tiers géolocalisés
@@ -23,22 +25,46 @@ if ($resql) {
     }
 }
 
-print '<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">';
-print '<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>';
 
-print '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />';
-print '<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>';
 
-print '<link rel="stylesheet" href="' . dol_buildpath('/custom/geotiers/css/map.css', 1) . '">';
+// Récupération des couleurs depuis la config
+$clientsColor = getDolGlobalString('GEOTIERS_COLOR_CLIENT', '#eca76a');
+$fournisseursColor = getDolGlobalString('GEOTIERS_COLOR_FOURNISSEUR', '#eca76a');
+$prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
 ?>
+
+<style>
+    :root {
+        --color-clients: <?php echo $clientsColor; ?>;
+        --color-fournisseurs: <?php echo $fournisseursColor; ?>;
+        --color-prospects: <?php echo $prospectsColor; ?>;
+    }
+</style>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<title>Planning des OF</title>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<script>
+    var DOL_TOKEN = '<?php echo $_SESSION['newtoken']; ?>';
+    var DOL_URL_ROOT = '<?php echo DOL_URL_ROOT; ?>';
+</script>
 
 <script>
     var DOL_URL_ROOT = '<?php echo DOL_URL_ROOT; ?>';
 
-    window.flGeoTiersIcons = {
-        client: '<?php echo dol_escape_js(getDolGlobalString('GEOTIERS_ICON_CLIENT')); ?>',
-        fournisseur: '<?php echo dol_escape_js(getDolGlobalString('GEOTIERS_ICON_FOURNISSEUR')); ?>',
-        prospect: '<?php echo dol_escape_js(getDolGlobalString('GEOTIERS_ICON_PROSPECT')); ?>'
+    window.flGeoTiersColors = {
+        client: '<?php echo dol_escape_js($clientsColor); ?>',
+        fournisseur: '<?php echo dol_escape_js($fournisseursColor); ?>',
+        prospect: '<?php echo dol_escape_js($prospectsColor); ?>'
     };
 </script>
 
@@ -56,12 +82,40 @@ print '<link rel="stylesheet" href="' . dol_buildpath('/custom/geotiers/css/map.
             </select>
         </div>
 
-        <div class="flgeotiers-filter-group">
+        <!-- <div class="flgeotiers-filter-group">
             <select id="filterType" class="flgeotiers-filter-multi" data-label="Type" multiple name="type[]">
                 <option value="client">Client</option>
                 <option value="fournisseur">Fournisseur</option>
                 <option value="prospect">Prospect</option>
             </select>
+        </div> -->
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-toggles">
+            <label class="toggle-pill prospects">
+                <input type="checkbox" id="filterShowProspects" checked>
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">Prospects</span>
+            </label>
+
+            <label class="toggle-pill fournisseurs">
+                <input type="checkbox" id="filterShowFournisseurs" checked>
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">Fourniseurs</span>
+            </label>
+
+            <label class="toggle-pill clients">
+                <input type="checkbox" id="filterShowClients" checked>
+                <span class="toggle-track">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">Clients</span>
+            </label>
         </div>
     </div>
     </div>
