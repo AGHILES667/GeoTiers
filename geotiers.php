@@ -104,7 +104,7 @@ $multiTypeColor = getDolGlobalString('GEOTIERS_COLOR_MULTI_TYPE', '#eca76a');
         
         <div style="display: flex">
             
-            <h1><?php echo $langs->trans("GeoTiersMapTitle"); ?></h1>
+            <h1 style="font-size:18px!important"><?php echo $langs->trans("GeoTiersMapTitle"); ?></h1>
 
             <button id="btnFullscreen" class="flgeotiers-fullscreen-btn" title="<?php echo $langs->trans("FullScreen"); ?>">
                 <svg id="iconExpand" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
@@ -158,8 +158,9 @@ $multiTypeColor = getDolGlobalString('GEOTIERS_COLOR_MULTI_TYPE', '#eca76a');
 
     <div class="flgeotiers-map-wrapper">
         <div id="flgeotiers-loading" class="flgeotiers-loading"><?php echo $langs->trans("MarkersLoading"); ?></div>
-        <div id="flgeotiers-count" class="flgeotiers-count is-hidden"></div>
-        <div id="flgeotiers-map"></div>
+        <div id="flgeotiers-map">
+            <div id="flgeotiers-count" class="flgeotiers-count is-hidden" hidden></div>
+        </div>
     </div>
 </div>
 
