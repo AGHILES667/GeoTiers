@@ -629,3 +629,32 @@ body.flgeotiers-fullscreen-mode .fiche {
     margin: 0;
     padding: 16px;
 }
+
+
+.flgeotiers-radius-reset {
+    position: absolute;
+    top: calc(var(--count-top, 10px) + 36px); /* juste sous le compteur */
+    left: 12px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--flg-success);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(22, 163, 74, 0.20);
+    box-shadow: var(--flg-shadow-sm);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.flgeotiers-radius-reset:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}

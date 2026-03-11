@@ -160,6 +160,9 @@ $multiTypeColor = getDolGlobalString('GEOTIERS_COLOR_MULTI_TYPE', '#eca76a');
         <div id="flgeotiers-loading" class="flgeotiers-loading"><?php echo $langs->trans("MarkersLoading"); ?></div>
         <div id="flgeotiers-map">
             <div id="flgeotiers-count" class="flgeotiers-count is-hidden" hidden></div>
+            <button type="button" id="flgeotiers-radius-reset" class="flgeotiers-radius-reset">
+                🔄 
+            </button>
         </div>
     </div>
 </div>

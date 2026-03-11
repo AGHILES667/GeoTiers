@@ -1,3 +1,6 @@
+var radiusCircle = null;
+
+
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -33,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function buildPopup(point) {
         var html = '<div class="flgeotiers-popup">';
 
+        let lat = (point.geo).split(',')[0];
+        let lng = (point.geo).split(',')[1];
+
         if (point.url) {
             html += '<div><strong><a href="' + escapeHtml(point.url) + '">' + escapeHtml(point.name || 'Tiers') + '</a></strong></div>';
         } else {
@@ -45,7 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (point.typeHtml) {
-            html += '<div style="margin-top:6px;">' + point.typeHtml + '</div>';
+            html += ' '
+            html += '<div style="margin-top:6px;"> <a style="margin-right:6px;" href="https://www.google.com/maps?q=&layer=c&cbll=' + point.geo+ '" target="_blank"><i class="fa fa-street-view"></i></a>' + point.typeHtml + '</div>';
         }
 
         if (point.address || point.zip || point.town) {
@@ -104,6 +111,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+        html += '</div>';
+
+        html += '<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px;">';
+        html += '<div style="display:flex;align-items:center;gap:6px;">';
+        html += '<span style="display:inline-block;">📍</span>';
+        html += '<input id="flgeotiers-radius-input" type="number" min="1" max="500" placeholder="km"'
+            + ' style="width:60px;padding:3px 6px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;">';
+        html += '<span style="font-size:11px;color:#6b7280;">km</span>';
+        html += '<button onclick="applyRadiusFromPoint(' + lat + ',' + lng + ')"'
+            + ' style="padding:3px 8px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;">→</button>';
+        html += '</div>';
         html += '</div>';
 
         return html;
@@ -169,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         var data = await response.json();
-        
+
         if (!data || !data.success) {
             throw new Error((data && data.error) ? data.error : 'Erreur inconnue');
         }
@@ -221,6 +239,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return types[0] || '';
     }
 
+    
+
+    
+
     function getFilters() {
         let selectElement = document.getElementById('filterTiers');
         let selectedValues = Array.from(selectElement.selectedOptions).map(option => option.value);
@@ -249,9 +271,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var colors = window.flGeoTiersColors || {};
 
-        var map = L.map('flgeotiers-map');
-        window._flGeoTiersMap = map;
-        var markerLayer = L.layerGroup().addTo(map);
+        window._flGeoTiersMap = L.map('flgeotiers-map', {
+            zoomControl: false  // désactive le zoom par défaut (haut gauche)
+        });
+                
+        var map = window._flGeoTiersMap;
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+        window._flGeoTiersMarkerLayer = L.layerGroup().addTo(map);
+        var markerLayer = window._flGeoTiersMarkerLayer;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
@@ -327,4 +356,81 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     initMap();
+});
+
+
+function applyRadiusFromPoint(lat, lng) {
+    var map = window._flGeoTiersMap;
+    var markerLayer = window._flGeoTiersMarkerLayer;
+    if (!map || !markerLayer) return;
+
+    var input = document.getElementById('flgeotiers-radius-input');
+    var radius = parseFloat(input ? input.value : 0);
+    if (!radius || radius <= 0) return;
+
+    map.closePopup();
+
+    if (radiusCircle) map.removeLayer(radiusCircle);
+    radiusCircle = L.circle([lat, lng], {
+        radius: radius * 1000,
+        color: '#3b82f6',
+        fillColor: '#93c5fd',
+        fillOpacity: 0.15,
+        weight: 2
+    }).addTo(map);
+
+    var visibleCount = 0;
+    markerLayer.eachLayer(function (marker) {
+        var latlng = marker.getLatLng();
+        var dist = haversineDistance(lat, lng, latlng.lat, latlng.lng);
+        if (dist <= radius) {
+            marker.setOpacity(1);
+            marker.options._hiddenByRadius = false;
+            visibleCount++;
+        } else {
+            marker.setOpacity(0);
+            marker.options._hiddenByRadius = true;
+        }
+    });
+
+    setCount(visibleCount);
+    map.fitBounds(radiusCircle.getBounds(), { padding: [30, 30] });
+
+    var resetBtn = document.getElementById('flgeotiers-radius-reset');
+    if (resetBtn) resetBtn.hidden = false;
+}
+
+function setCount(count) {
+    var countEl = document.getElementById('flgeotiers-count');
+    if (countEl) {
+        countEl.textContent = count + ' ' + GEO_TIERS_TEXT.tiersDisplayed;
+        countEl.style.display = 'block';
+    }
+}
+
+function haversineDistance(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+        + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+        * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+document.getElementById('flgeotiers-radius-reset').addEventListener('click', function() {
+    var map = window._flGeoTiersMap;
+    var markerLayer = window._flGeoTiersMarkerLayer;
+    if (radiusCircle) {
+        map.removeLayer(radiusCircle);
+        radiusCircle = null;
+    }
+    markerLayer.eachLayer(function(marker) {
+        marker.setOpacity(1);
+        marker.options._hiddenByRadius = false;
+    });
+    setCount(markerLayer.getLayers().length);
+    var bounds = L.latLngBounds([]);
+    markerLayer.eachLayer(function(m) { bounds.extend(m.getLatLng()); });
+    if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
 });
