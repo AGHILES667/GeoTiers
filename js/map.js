@@ -40,11 +40,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Type
+        if (point.typent) {
+            html += '<div style="margin-top:4px;font-size:11px;color:#666;">' + escapeHtml(point.typent) + '</div>';
+        }
+
         if (point.typeHtml) {
             html += '<div style="margin-top:6px;">' + point.typeHtml + '</div>';
         }
-
-
 
         if (point.address || point.zip || point.town) {
             html += '<div style="margin-top:6px;">';
@@ -55,9 +57,6 @@ document.addEventListener('DOMContentLoaded', function () {
             html += '</div>';
         }
 
-        html += '<div style="margin-top:6px;font-size:11px;color:#666;">';
-        
-        html += '</div>';
 
         html += '</div>';
 

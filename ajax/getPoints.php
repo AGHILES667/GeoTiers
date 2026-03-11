@@ -42,10 +42,14 @@ $sql = "SELECT DISTINCT
 			s.town,
 			s.client,
 			s.fournisseur,
+			s.fk_typent,
+			te.libelle as typent_libelle,
 			se.fl_geotiers_lat,
 			se.fl_geotiers_long
 		FROM ".MAIN_DB_PREFIX."societe as s
-		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid";
+		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid
+		LEFT JOIN llx_c_typent as te ON te.id = s.fk_typent";
+		
 if (!$canWrite && $canRead) {
 	$sql .= " INNER JOIN ".MAIN_DB_PREFIX."societe_commerciaux as sc ON sc.fk_soc = s.rowid";
 }
@@ -101,10 +105,10 @@ require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
 $companystatic = new Societe($db);
 
 while ($obj = $db->fetch_object($resql)) {
-    $companystatic->id         = $obj->rowid;
-    $companystatic->client     = $obj->client;
-    $companystatic->fournisseur = $obj->fournisseur;
-    $companystatic->status     = 1;
+    $companystatic->id          = (int) $obj->rowid;
+    $companystatic->client      = (int) $obj->client;
+    $companystatic->fournisseur = (int) $obj->fournisseur;
+
 
     $points[] = array(
         'id'          => (int) $obj->rowid,
@@ -117,7 +121,8 @@ while ($obj = $db->fetch_object($resql)) {
         'url'         => DOL_URL_ROOT.'/societe/card.php?socid='.(int) $obj->rowid,
         'client'      => (int) $obj->client,
         'fournisseur' => (int) $obj->fournisseur,
-        'typeHtml'    => $companystatic->getTypeUrl(1)
+        'typeHtml'    => $companystatic->getTypeUrl(1),
+        'typent'      => $obj->typent_libelle ?: '',
     );
 }
 echo json_encode(array(
