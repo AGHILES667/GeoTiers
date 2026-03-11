@@ -346,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         await refreshMap();
+        window._flGeoTiersRefreshMap = refreshMap;
 
         ['filterTiers', 'filterShowProspects', 'filterShowFournisseurs', 'filterShowClients'].forEach(function (elementId) {
             var element = document.getElementById(elementId);
@@ -421,6 +422,12 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
 document.getElementById('flgeotiers-radius-reset').addEventListener('click', function() {
     var map = window._flGeoTiersMap;
     var markerLayer = window._flGeoTiersMarkerLayer;
+
+    var mapEl = document.getElementById('flgeotiers-map');
+    mapEl.style.transition = 'opacity 0.15s';
+    mapEl.style.opacity = '0.4';
+    setTimeout(function() { mapEl.style.opacity = '1'; }, 150);
+
     if (radiusCircle) {
         map.removeLayer(radiusCircle);
         radiusCircle = null;
@@ -433,4 +440,10 @@ document.getElementById('flgeotiers-radius-reset').addEventListener('click', fun
     var bounds = L.latLngBounds([]);
     markerLayer.eachLayer(function(m) { bounds.extend(m.getLatLng()); });
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [30, 30] });
+
+    this.hidden = true;
+
+    if (window._flGeoTiersRefreshMap) {
+        window._flGeoTiersRefreshMap();
+    }
 });
