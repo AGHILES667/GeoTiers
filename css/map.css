@@ -600,3 +600,28 @@
 .toggle-pill.prospects:has(input:checked) .toggle-label {
     color: var(--color-prospects);
 }
+
+
+.flgeotiers-fullscreen-btn {
+    margin-left: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #555;
+    transition: background 0.2s;
+}
+.flgeotiers-fullscreen-btn:hover { background: #f0f0f0; }
+
+body.flgeotiers-fullscreen-mode .fiche {
+    position: fixed !important;
+    inset: 0;
+    z-index: 9999;
+    background: #fff;
+    overflow: auto;
+    margin: 0;
+    padding: 16px;
+}

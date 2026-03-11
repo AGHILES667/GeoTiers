@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function setCount(count) {
         var countEl = document.getElementById('flgeotiers-count');
         if (countEl) {
-            countEl.textContent = count + ' tiers affiché(s)';
+            countEl.textContent = count + ' ' + GEO_TIERS_TEXT.tiersDisplayed;
             countEl.style.display = 'block';
         }
     }
@@ -120,15 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return Array.isArray(data.points) ? data.points : [];
     }
 
-    function buildIcon(iconUrl, color) {
-        if (iconUrl) {
-            return L.icon({
-                iconUrl: iconUrl,
-                iconSize: [32, 32],
-                iconAnchor: [16, 32],
-                popupAnchor: [0, -32]
-            });
-        }
+    function buildIcon( color) {
 
         var fillColor = color || '#eca76a';
 
@@ -152,18 +144,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-function getPointType(point) {
-    if (parseInt(point.fournisseur, 10) > 0) {
-        return 'fournisseur';
+    function getPointType(point) {
+        let types = [];
+
+        if (parseInt(point.fournisseur, 10) > 0) {
+            types.push('fournisseur');
+        }
+
+        if (parseInt(point.client, 10) === 2) {
+            types.push('prospect');
+        } else if (parseInt(point.client, 10) > 0) {
+            types.push('client');
+        }
+
+        if (types.length >= 2) {
+            return 'multiType';
+        }
+
+        return types[0] || '';
     }
-    if (parseInt(point.client, 10) === 2) {
-        return 'prospect';
-    }
-    if (parseInt(point.client, 10) > 0) {
-        return 'client';
-    }
-    return 'client';
-}
 
     function getFilters() {
         let selectElement = document.getElementById('filterTiers');
@@ -192,20 +191,20 @@ function getPointType(point) {
         }
 
         var colors = window.flGeoTiersColors || {};
-        var iconsConfig = window.flGeoTiersIcons || {};
 
         var map = L.map('flgeotiers-map');
+        window._flGeoTiersMap = map;
         var markerLayer = L.layerGroup().addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
 
-        var iconsConfig = window.flGeoTiersIcons || {};
         var leafletIcons = {
-            client:      buildIcon(iconsConfig.client,      colors.client),
-            fournisseur: buildIcon(iconsConfig.fournisseur, colors.fournisseur),
-            prospect:    buildIcon(iconsConfig.prospect,    colors.prospect)
+            client:      buildIcon(colors.client),
+            fournisseur: buildIcon(colors.fournisseur),
+            prospect:    buildIcon(colors.prospect),
+            multiType:   buildIcon(colors.multiType)
         };
 
         async function refreshMap() {

@@ -5,7 +5,7 @@ $langs->loadLangs(array('companies'));
 
 print '<link rel="stylesheet" href="'.DOL_URL_ROOT.'/custom/geotiers/css/map.css">';
 
-llxHeader('', 'Carte des tiers');
+llxHeader('', $langs->trans("GeoTiersMap"));
 
 // Récupération des tiers géolocalisés
 $sql = "SELECT s.rowid, s.nom, s.client, s.fournisseur
@@ -25,12 +25,28 @@ if ($resql) {
     }
 }
 
+$sqlCount = "SELECT 
+    SUM(CASE WHEN s.client = 1 THEN 1 ELSE 0 END) as nb_clients,
+    SUM(CASE WHEN s.fournisseur = 1 THEN 1 ELSE 0 END) as nb_fournisseurs,
+    SUM(CASE WHEN s.client = 2 THEN 1 ELSE 0 END) as nb_prospects
+    FROM ".MAIN_DB_PREFIX."societe s
+    WHERE s.entity IN (".getEntity('societe').")
+    AND s.address IS NOT NULL AND s.zip IS NOT NULL AND s.town IS NOT NULL
+    AND s.status = 1";
+
+$resCount = $db->query($sqlCount);
+$counts = $db->fetch_object($resCount);
+$nb_clients      = $counts ? (int)$counts->nb_clients      : 0;
+$nb_fournisseurs = $counts ? (int)$counts->nb_fournisseurs  : 0;
+$nb_prospects    = $counts ? (int)$counts->nb_prospects     : 0;
+
 
 
 // Récupération des couleurs depuis la config
 $clientsColor = getDolGlobalString('GEOTIERS_COLOR_CLIENT', '#eca76a');
 $fournisseursColor = getDolGlobalString('GEOTIERS_COLOR_FOURNISSEUR', '#eca76a');
 $prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
+$multiTypeColor = getDolGlobalString('GEOTIERS_COLOR_MULTI_TYPE', '#eca76a');
 ?>
 
 <style>
@@ -38,6 +54,7 @@ $prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
         --color-clients: <?php echo $clientsColor; ?>;
         --color-fournisseurs: <?php echo $fournisseursColor; ?>;
         --color-prospects: <?php echo $prospectsColor; ?>;
+        --color-multi-type: <?php echo $multiTypeColor; ?>;
     }
 </style>
 
@@ -64,16 +81,37 @@ $prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
     window.flGeoTiersColors = {
         client: '<?php echo dol_escape_js($clientsColor); ?>',
         fournisseur: '<?php echo dol_escape_js($fournisseursColor); ?>',
-        prospect: '<?php echo dol_escape_js($prospectsColor); ?>'
+        prospect: '<?php echo dol_escape_js($prospectsColor); ?>',
+        multiType: '<?php echo dol_escape_js($multiTypeColor); ?>'
     };
+
+    var GEO_TIERS_TEXT = {
+        tiersDisplayed: "<?php echo $langs->transnoentities('TiersDisplayed'); ?>"
+    };
+</script>
+
+<script>
+
+    
 </script>
 
 <div class="fiche">
     <div class="flgeotiers-page-title">
-        <h1>Carte des tiers géolocalisés</h1>
+        
+        <div style="display: flex">
+            
+            <h1><?php echo $langs->trans("GeoTiersMapTitle"); ?></h1>
+
+            <button id="btnFullscreen" class="flgeotiers-fullscreen-btn" title="Plein écran">
+                <svg id="iconExpand" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                <svg id="iconCompress" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+            </button>
+        
+        </div>
+
         <div class="flgeotiers-filters">
         <div class="flgeotiers-filter-group">
-            <select id="filterTiers" class="flgeotiers-filter-multi" data-label="Tiers" multiple name="tiers[]">
+            <select id="filterTiers" class="flgeotiers-filter-multi" data-label="<?php echo $langs->trans("ThirdParties"); ?>" multiple name="tiers[]">
                 <?php foreach ($tiers as $tier): ?>
                     <option value="<?php echo (int) $tier->rowid; ?>">
                         <?php echo dol_htmlentities($tier->nom); ?>
@@ -95,33 +133,27 @@ $prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
         <div class="filter-toggles">
             <label class="toggle-pill prospects">
                 <input type="checkbox" id="filterShowProspects" checked>
-                <span class="toggle-track">
-                    <span class="toggle-thumb"></span>
-                </span>
-                <span class="toggle-label">Prospects</span>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label"><?php echo $langs->trans("Prospects"); ?> (<span class="toggle-count"><?php echo $nb_prospects; ?>)</span></span>
             </label>
 
             <label class="toggle-pill fournisseurs">
                 <input type="checkbox" id="filterShowFournisseurs" checked>
-                <span class="toggle-track">
-                    <span class="toggle-thumb"></span>
-                </span>
-                <span class="toggle-label">Fourniseurs</span>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label"><?php echo $langs->trans("Suppliers"); ?> (<span class="toggle-count"><?php echo $nb_fournisseurs; ?>)</span></span>
             </label>
 
             <label class="toggle-pill clients">
                 <input type="checkbox" id="filterShowClients" checked>
-                <span class="toggle-track">
-                    <span class="toggle-thumb"></span>
-                </span>
-                <span class="toggle-label">Clients</span>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                <span class="toggle-label"><?php echo $langs->trans("Customers"); ?> (<span class="toggle-count"><?php echo $nb_clients; ?>)</span></span>
             </label>
         </div>
     </div>
     </div>
 
     <div class="flgeotiers-map-wrapper">
-        <div id="flgeotiers-loading" class="flgeotiers-loading">Chargement des points...</div>
+        <div id="flgeotiers-loading" class="flgeotiers-loading"><?php echo $langs->trans("MarkersLoading"); ?></div>
         <div id="flgeotiers-count" class="flgeotiers-count is-hidden"></div>
         <div id="flgeotiers-map"></div>
     </div>
@@ -140,8 +172,8 @@ $prospectsColor = getDolGlobalString('GEOTIERS_COLOR_PROSPECT', '#eca76a');
                 placeholder: true,
                 placeholderValue: element.dataset.label || 'Sélectionner',
                 itemSelectText: '',
-                noResultsText: 'Aucun résultat',
-                noChoicesText: 'Aucun choix disponible'
+                noResultsText: '<?php echo $langs->trans("ChoicesNoResults"); ?>',
+                noChoicesText: '<?php echo $langs->trans("ChoicesNoChoice"); ?>'
             });
         });
     });
