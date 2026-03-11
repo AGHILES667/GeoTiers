@@ -19,6 +19,7 @@ NewSection=New section
 GEOTIERS_COLOR_CLIENT=Customer's color
 GEOTIERS_COLOR_FOURNISSEUR=Supplier's color
 GEOTIERS_COLOR_PROSPECT=Prospect's color
+GEOTIERS_COLOR_MULTI_TYPE = Multi-type's color 
 
 
 #

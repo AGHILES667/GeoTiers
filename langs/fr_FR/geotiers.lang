@@ -19,6 +19,7 @@ NewSection=New section
 GEOTIERS_COLOR_CLIENT=Couleur des clients
 GEOTIERS_COLOR_FOURNISSEUR=Couleur des fournisseurs
 GEOTIERS_COLOR_PROSPECT = Couleur des prospects
+GEOTIERS_COLOR_MULTI_TYPE = Couleur multi-type
 
 
 
