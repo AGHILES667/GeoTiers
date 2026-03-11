@@ -39,6 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
             html += '<div><strong>' + escapeHtml(point.name || 'Tiers') + '</strong></div>';
         }
 
+        // Type
+        if (point.typeHtml) {
+            html += '<div style="margin-top:6px;">' + point.typeHtml + '</div>';
+        }
+
+
+
         if (point.address || point.zip || point.town) {
             html += '<div style="margin-top:6px;">';
             if (point.address) {
@@ -93,13 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function getCurrentFilters() {
-        return {
-            tiers: getSelectedValues('filterTiers'),
-            types: getSelectedValues('filterType')
-        };
-    }
-
     async function fetchPoints() {
 
         let filters = getFilters();
@@ -110,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function () {
         params.append('showFournisseurs', filters.showFournisseurs ? 1 : 0);
         params.append('showClients', filters.showClients ? 1 : 0);
 
-        // params.append('tiers', (filters.tiers || []).join(','));
-        // params.append('type', (filters.types || []).join(','));
 
         var response = await fetch(DOL_URL_ROOT + '/custom/geotiers/ajax/getPoints.php?' + params.toString(), {
             method: 'GET',

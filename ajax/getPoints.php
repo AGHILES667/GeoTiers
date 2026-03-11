@@ -97,19 +97,28 @@ if (!$resql) {
 	exit;
 }
 $points = array();
+require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+$companystatic = new Societe($db);
+
 while ($obj = $db->fetch_object($resql)) {
-	$points[] = array(
-		'id'          => (int) $obj->rowid,
-		'name'        => $obj->nom,
-		'lat'         => (float) $obj->fl_geotiers_lat,
-		'lng'         => (float) $obj->fl_geotiers_long,
-		'address'     => $obj->address,
-		'zip'         => $obj->zip,
-		'town'        => $obj->town,
-		'url'         => DOL_URL_ROOT.'/societe/card.php?socid='.(int) $obj->rowid,
-		'client'      => (int) $obj->client,
-		'fournisseur' => (int) $obj->fournisseur
-	);
+    $companystatic->id         = $obj->rowid;
+    $companystatic->client     = $obj->client;
+    $companystatic->fournisseur = $obj->fournisseur;
+    $companystatic->status     = 1;
+
+    $points[] = array(
+        'id'          => (int) $obj->rowid,
+        'name'        => $obj->nom,
+        'lat'         => (float) $obj->fl_geotiers_lat,
+        'lng'         => (float) $obj->fl_geotiers_long,
+        'address'     => $obj->address,
+        'zip'         => $obj->zip,
+        'town'        => $obj->town,
+        'url'         => DOL_URL_ROOT.'/societe/card.php?socid='.(int) $obj->rowid,
+        'client'      => (int) $obj->client,
+        'fournisseur' => (int) $obj->fournisseur,
+        'typeHtml'    => $companystatic->getTypeUrl(1)
+    );
 }
 echo json_encode(array(
 	'success' => true,
