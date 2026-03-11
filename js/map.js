@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         var data = await response.json();
-
+        
         if (!data || !data.success) {
             throw new Error((data && data.error) ? data.error : 'Erreur inconnue');
         }
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 var rawPoints = await fetchPoints();
                 var points = rawPoints.filter(function (point) {
-                    return isValidCoordinate(point.lat) && isValidCoordinate(point.lng);
+                    return isValidCoordinate(point.geo);
                 });
                 var bounds = L.latLngBounds([]);
 
@@ -284,8 +284,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 points.forEach(function (point) {
-                    var lat = parseFloat(point.lat);
-                    var lng = parseFloat(point.lng);
+                    point.lat = (point.geo).split(',')[0];
+                    point.lng = (point.geo).split(',')[1];
+
+                    var lat = (point.geo).split(',')[0];
+                    var lng = (point.geo).split(',')[1];
 
                     var pointType = getPointType(point);
                     var markerOptions = {};

@@ -44,8 +44,7 @@ $sql = "SELECT DISTINCT
 			s.fournisseur,
 			s.fk_typent,
 			te.libelle as typent_libelle,
-			se.fl_geotiers_lat,
-			se.fl_geotiers_long
+			se.fl_geo
 		FROM ".MAIN_DB_PREFIX."societe as s
 		INNER JOIN ".MAIN_DB_PREFIX."societe_extrafields as se ON se.fk_object = s.rowid
 		LEFT JOIN llx_c_typent as te ON te.id = s.fk_typent";
@@ -55,10 +54,8 @@ if (!$canWrite && $canRead) {
 }
 $sql .= " WHERE s.entity IN (".getEntity('societe').")
 		  AND s.status = 1
-		  AND se.fl_geotiers_lat IS NOT NULL
-		  AND se.fl_geotiers_lat <> ''
-		  AND se.fl_geotiers_long IS NOT NULL
-		  AND se.fl_geotiers_long <> ''";
+		  AND se.fl_geo IS NOT NULL
+		  AND se.fl_geo <> ''";
 if (!$canWrite && $canRead) {
 	$sql .= " AND sc.fk_user = ".((int) $user->id);
 }
@@ -189,8 +186,7 @@ foreach ($rawPoints as $obj) {
     $points[] = array(
         'id'          => (int) $obj->rowid,
         'name'        => $obj->nom,
-        'lat'         => (float) $obj->fl_geotiers_lat,
-        'lng'         => (float) $obj->fl_geotiers_long,
+        'geo'         => $obj->fl_geo,
         'address'     => $obj->address,
         'zip'         => $obj->zip,
         'town'        => $obj->town,
