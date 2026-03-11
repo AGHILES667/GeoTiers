@@ -81,7 +81,7 @@ if ($showClients) {
 if (!empty($typeConditions)) {
 	$sql .= ' AND ('.implode(' OR ', $typeConditions).')';
 } else {
-	// Aucun switch actif → aucun résultat
+	
 	echo json_encode(array(
 		'success' => true,
 		'points' => array()
@@ -110,7 +110,6 @@ $contacts = array();
 $points = array();
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
 
-// Modifiez la boucle while pour collecter les IDs
 $socIds = array();
 $rawPoints = array();
 while ($obj = $db->fetch_object($resql)) {
@@ -118,7 +117,7 @@ while ($obj = $db->fetch_object($resql)) {
     $rawPoints[] = $obj;
 }
 
-// Requête contacts
+// contacts
 $contacts = array();
 if (!empty($socIds)) {
     $sqlContacts = "SELECT
@@ -149,7 +148,38 @@ if (!empty($socIds)) {
     }
 }
 
-// Boucle principale
+// commerciaux
+$commerciaux = array();
+if (!empty($socIds)) {
+    $sqlCommerciaux = "SELECT
+            sc.fk_soc,
+            u.rowid as user_id,
+            u.firstname,
+            u.lastname,
+            u.email,
+            u.office_phone,
+            u.user_mobile
+        FROM ".MAIN_DB_PREFIX."societe_commerciaux as sc
+        JOIN ".MAIN_DB_PREFIX."user as u ON u.rowid = sc.fk_user
+        WHERE sc.fk_soc IN (".implode(',', $socIds).")
+          AND u.statut = 1
+        ORDER BY sc.fk_soc, u.lastname ASC";
+
+    $resCommerciaux = $db->query($sqlCommerciaux);
+    if ($resCommerciaux) {
+        while ($objU = $db->fetch_object($resCommerciaux)) {
+            $socId = (int) $objU->fk_soc;
+            $commerciaux[$socId][] = array(
+                'name'   => trim($objU->firstname.' '.$objU->lastname),
+                'email'  => $objU->email        ?: '',
+                'phone'  => $objU->office_phone ?: '',
+                'mobile' => $objU->user_mobile  ?: ''
+            );
+        }
+    }
+}
+
+// 
 $companystatic = new Societe($db);
 foreach ($rawPoints as $obj) {
     $companystatic->id          = (int) $obj->rowid;
@@ -169,7 +199,8 @@ foreach ($rawPoints as $obj) {
         'fournisseur' => (int) $obj->fournisseur,
         'typeHtml'    => $companystatic->getTypeUrl(1),
         'typent'      => $obj->typent_libelle ?: '',
-        'contacts'    => $contacts[(int) $obj->rowid] ?? array()
+        'contacts'    => $contacts[(int) $obj->rowid] ?? array(), 
+		'commerciaux' => $commerciaux[(int) $obj->rowid] ?? array()
     );
 }
 

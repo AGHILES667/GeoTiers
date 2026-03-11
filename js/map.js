@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (point.contacts && point.contacts.length > 0) {
             html += '<div style="margin-top:6px;border-top:1px solid #eee;padding-top:6px;">';
-            html += '<span style="font-weight:bold; font-size:12px; ">Contacts</span>';
+            html += '<span style="font-size:10px;color:#999;text-transform:uppercase;">Contacts</span>';
             point.contacts.forEach(function(contact) {
                 html += '<div style="margin-bottom:7px; margin-left:10px;font-size:11px;">';
                 html += '<strong>' + escapeHtml(contact.name) + '</strong>';
@@ -75,6 +75,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (contact.email) {
                     html += '<br>✉️ <a href="mailto:' + escapeHtml(contact.email) + '">' 
                         + escapeHtml(contact.email) + '</a>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        if (point.commerciaux && point.commerciaux.length > 0) {
+            html += '<div style="margin-top:6px;border-top:1px solid #eee;padding-top:6px;">';
+            html += '<span style="font-size:10px;color:#999;text-transform:uppercase;">Commerciaux</span>';
+            point.commerciaux.forEach(function(commercial) {
+                html += '<div style="margin-bottom:4px; margin-left:10px;font-size:11px;">';
+                html += '<strong>' + escapeHtml(commercial.name) + '</strong>';
+                if (commercial.phone) {
+                    html += '<br>📞 ' + escapeHtml(commercial.phone);
+                }
+                if (commercial.mobile) {
+                    html += '<br>📱 ' + escapeHtml(commercial.mobile);
+                }
+                if (commercial.email) {
+                    html += '<br>✉️ <a href="mailto:' + escapeHtml(commercial.email) + '">'
+                        + escapeHtml(commercial.email) + '</a>';
                 }
                 html += '</div>';
             });
