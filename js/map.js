@@ -1,6 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
+
+    document.getElementById('btnFullscreen').addEventListener('click', function () {
+    var isFullscreen = document.body.classList.toggle('flgeotiers-fullscreen-mode');
+    document.getElementById('iconExpand').style.display   = isFullscreen ? 'none'  : '';
+    document.getElementById('iconCompress').style.display = isFullscreen ? ''      : 'none';
+    // Invalider la taille de la carte Leaflet après transition
+    setTimeout(function () {
+        var mapEl = document.getElementById('flgeotiers-map');
+        if (mapEl && mapEl._leaflet_id) {
+            window._flGeoTiersMap && window._flGeoTiersMap.invalidateSize();
+        }
+    }, 100);
+});
+
     function escapeHtml(value) {
         return value
         if (value === null || value === undefined) return '';
