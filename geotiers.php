@@ -1,6 +1,10 @@
 <?php
 require '../../main.inc.php';
 
+if (!$user->rights->geotiers->read) {
+    accessforbidden();
+}
+
 $langs->loadLangs(array('companies'));
 
 print '<link rel="stylesheet" href="'.DOL_URL_ROOT.'/custom/geotiers/css/map.css">';
