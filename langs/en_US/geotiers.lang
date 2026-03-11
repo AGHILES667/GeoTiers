@@ -14,12 +14,11 @@ ModuleGeoTiersDesc = Affiche les tiers sur une carte interactive.
 #
 GeoTiersSetup = GeoTiers setup
 Settings = Settings
-GeoTiersSetupPage = GeoTiers setup page
+GeoTiersSetupPage = Setup page
 NewSection=New section
-GEOTIERS_MYPARAM1 = My param 1
-GEOTIERS_MYPARAM1Tooltip = My param 1 tooltip
-GEOTIERS_MYPARAM2=My param 2
-GEOTIERS_MYPARAM2Tooltip=My param 2 tooltip
+GEOTIERS_COLOR_CLIENT=Customer's color
+GEOTIERS_COLOR_FOURNISSEUR=Supplier's color
+GEOTIERS_COLOR_PROSPECT=Prospect's color
 
 
 #
@@ -40,3 +39,18 @@ MyPageName = My page name
 #
 MyWidget = My widget
 MyWidgetDescription = My widget description
+
+
+#
+# Left Menu
+#
+GeoTiersMap = Third Parties Map
+
+#
+# Map View
+#
+GeoTiersMapTitle=Third Parties Map
+MarkersLoading=Loading markers...
+ChoicesNoResults=No results
+ChoicesNoChoice=No choice available
+TiersDisplayed=third parties displayed

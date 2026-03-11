@@ -1,0 +1,57 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleGeoTiersName'
+ModuleGeoTiersName = Geo Tiers
+# Module description 'ModuleGeoTiersDesc'
+ModuleGeoTiersDesc = Affiche les tiers sur une carte interactive.
+
+#
+# Admin page
+#
+GeoTiersSetup = Paramétrage GeoTiers
+Settings = Settings
+GeoTiersSetupPage = Page de paramétrage
+NewSection=New section
+GEOTIERS_COLOR_CLIENT=Couleur des clients
+GEOTIERS_COLOR_FOURNISSEUR=Couleur des fournisseurs
+GEOTIERS_COLOR_PROSPECT = Couleur des prospects
+
+
+
+#
+# About page
+#
+About = About
+GeoTiersAbout = About GeoTiers
+GeoTiersAboutPage = GeoTiers about page
+
+#
+# Sample page
+#
+GeoTiersArea = Home GeoTiers
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+
+#
+# Left Menu
+#
+GeoTiersMap = Carte des tiers
+
+#
+# Map View
+#
+GeoTiersMapTitle=Carte des tiers
+MarkersLoading=Chargement des points...
+ChoicesNoResults=Aucun résultat
+ChoicesNoChoice=Aucun choix disponible
+TiersDisplayed=tiers affiché(s)

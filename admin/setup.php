@@ -153,19 +153,20 @@ if (GETPOST('save', 'alpha')) {
 // $formSetup->newItem('GEOTIERS_MAP_ICONS_TITLE')->setAsTitle();
 
 $item = $formSetup->newItem('GEOTIERS_COLOR_CLIENT');
-$item->nameText = 'Couleur client';
 $item->setAsColor();
 $item->defaultFieldValue = '#1e5469';
 
 $item = $formSetup->newItem('GEOTIERS_COLOR_FOURNISSEUR');
-$item->nameText = 'Couleur fournisseur';
 $item->setAsColor();
 $item->defaultFieldValue = '#cac723';
 
 $item = $formSetup->newItem('GEOTIERS_COLOR_PROSPECT');
-$item->nameText = 'Couleur prospect';
 $item->setAsColor();
 $item->defaultFieldValue = '#d11212';
+
+$item = $formSetup->newItem('GEOTIERS_COLOR_MULTI_TYPE');
+$item->setAsColor();
+$item->defaultFieldValue = '#8ce452';
 
 //$item = $formSetup->newItem('GEOTIERS_MYPARAM13')->setAsDate();	// Not yet implemented
 

@@ -87,7 +87,7 @@ class modGeoTiers extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		// To use a supported fa-xxx css style of font awesome, use this->picto='xxx'
-		$this->picto = 'LogoFL@planningof';
+		$this->picto = 'FL_Grande@geotiers';
 
 		// Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
 		$this->module_parts = array(
@@ -348,8 +348,8 @@ class modGeoTiers extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu' => 'fk_mainmenu=companies',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',                          // This is a Left menu entry
-			'titre' => 'Map des tiers',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle paddingright"'),
+			'titre' => 'GeoTiersMap',
+			'prefix' => 'fa fa-map-marker-alt',
 			// 'mainmenu' => 'geotiers',
 			// 'leftmenu' => 'myobject',
 			'url' => '/geotiers/geotiers.php',
