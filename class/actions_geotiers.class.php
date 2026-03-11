@@ -193,23 +193,66 @@ class ActionsGeoTiers extends CommonHookActions
 	{
 		global $conf, $user, $langs;
 
-		$error = 0; // Error counter
+		$massaction = GETPOST('massaction', 'aZ09');
 
-		/* print_r($parameters); print_r($object); echo "action: " . $action; */
-		if (in_array($parameters['currentcontext'], array('somecontext1', 'somecontext2'))) {		// do something only for the context 'somecontext1' or 'somecontext2'
-			// @phan-suppress-next-line PhanPluginEmptyStatementForeachLoop
-			foreach ($parameters['toselect'] as $objectid) {
-				// Do action on each object id
+		dol_syslog(__METHOD__.' context='.$parameters['context'].' action='.$action.' massaction='.$massaction, LOG_WARNING);
+
+		if (
+			in_array('thirdpartylist', explode(':', $parameters['context']))
+			&& $massaction === 'geolocalize'
+		) {
+			require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+
+			$countOk = 0;
+			$countKo = 0;
+
+			foreach ($parameters['toselect'] as $i => $objectid) {
+				$societe = new Societe($this->db);
+
+				if ($societe->fetch((int) $objectid) <= 0) {
+					dol_syslog(__METHOD__.' FETCH FAILED for id='.$objectid, LOG_WARNING);
+					$countKo++;
+					continue;
+				}
+
+				$fullAddress = trim($societe->address.' '.$societe->zip.' '.$societe->town);
+				dol_syslog(__METHOD__.' address="'.$fullAddress.'" for id='.$objectid, LOG_DEBUG);
+
+				if (empty($fullAddress)) {
+					dol_syslog(__METHOD__.' EMPTY ADDRESS for id='.$objectid, LOG_WARNING);
+					$countKo++;
+					continue;
+				}
+
+				$coords = $this->fetchGps($fullAddress);
+				dol_syslog(__METHOD__.' coords='.json_encode($coords).' for id='.$objectid, LOG_DEBUG);
+
+				if (!empty($coords['lat']) && !empty($coords['long'])) {
+					$geo = $coords['lat'].', '.$coords['long'];
+
+					$societe->array_options['options_fl_geo'] = $geo;
+					$res = $societe->insertExtraFields();
+
+					dol_syslog(__METHOD__.' insertExtraFields res='.$res.' geo='.$geo.' for id='.$objectid, LOG_DEBUG);
+
+					if ($res < 0) {
+						dol_syslog(__METHOD__.' INSERT FAILED: '.implode(', ', $societe->errors), LOG_WARNING);
+						$countKo++;
+					} else {
+						$countOk++;
+					}
+				} else {
+					dol_syslog(__METHOD__.' NO COORDS for id='.$objectid, LOG_WARNING);
+					$countKo++;
+				}
+
+				if ($i > 0 && $i % 10 === 0) {
+					usleep(500000); 
+				}
 			}
 
-			if (!$error) {
-				$this->results = array('myreturn' => 999);
-				$this->resprints = 'A text to show';
-				return 0; // or return 1 to replace standard code
-			} else {
-				$this->errors[] = 'Error message';
-				return -1;
-			}
+			$this->resprints = 'Géolocalisation : '.$countOk.' OK, '.$countKo.' KO';
+			return 0;
 		}
 
 		return 0;
@@ -227,18 +270,16 @@ class ActionsGeoTiers extends CommonHookActions
 	 */
 	public function addMoreMassActions($parameters, &$object, &$action, $hookmanager)
 	{
-		global $conf, $user, $langs;
+		global $langs;
 
-		$error = 0; // Error counter
-		$disabled = 1;
+		$error = 0;
 
-		/* print_r($parameters); print_r($object); echo "action: " . $action; */
-		if (in_array($parameters['currentcontext'], array('somecontext1', 'somecontext2'))) {		// do something only for the context 'somecontext1' or 'somecontext2'
-			$this->resprints = '<option value="0"'.($disabled ? ' disabled="disabled"' : '').'>'.$langs->trans("GeoTiersMassAction").'</option>';
+		if (in_array('thirdpartylist', explode(':', $parameters['context']))) {
+			$this->resprints = '<option value="geolocalize">' .$langs->trans("GeoTiersMassAction").'</option>';
 		}
 
 		if (!$error) {
-			return 0; // or return 1 to replace standard code
+			return 0;
 		} else {
 			$this->errors[] = 'Error message';
 			return -1;

@@ -56,3 +56,7 @@ ChoicesNoResults=No results
 ChoicesNoChoice=No choice available
 TiersDisplayed=third parties displayed
 FullScreen = Full Screen
+
+
+
+GeoTiersMassAction = Geolocalize (Module Geo tiers - ForLead)

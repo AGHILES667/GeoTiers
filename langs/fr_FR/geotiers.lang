@@ -58,3 +58,6 @@ ChoicesNoChoice=Aucun choix disponible
 TiersDisplayed=tiers affiché(s)
 FullScreen=Plein écran
 Supplier=Fournisseur
+
+
+GeoTiersMassAction = Géolocaliser (Module Geo tiers - ForLead)
