@@ -57,6 +57,31 @@ document.addEventListener('DOMContentLoaded', function () {
             html += '</div>';
         }
 
+        if (point.contacts && point.contacts.length > 0) {
+            html += '<div style="margin-top:6px;border-top:1px solid #eee;padding-top:6px;">';
+            html += '<span style="font-weight:bold; font-size:12px; ">Contacts</span>';
+            point.contacts.forEach(function(contact) {
+                html += '<div style="margin-bottom:7px; margin-left:10px;font-size:11px;">';
+                html += '<strong>' + escapeHtml(contact.name) + '</strong>';
+                if (contact.poste){
+                    html += '<br> 👷 ' + escapeHtml(contact.poste);
+                }
+                if (contact.phone) {
+                    html += '<br>📞 ' + escapeHtml(contact.phone);
+                }
+                if (contact.mobile) {
+                    html += '<br>📱 ' + escapeHtml(contact.mobile);
+                }
+                if (contact.email) {
+                    html += '<br>✉️ <a href="mailto:' + escapeHtml(contact.email) + '">' 
+                        + escapeHtml(contact.email) + '</a>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+
 
         html += '</div>';
 

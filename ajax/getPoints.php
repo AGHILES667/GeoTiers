@@ -100,15 +100,61 @@ if (!$resql) {
 	));
 	exit;
 }
+
+
+
+//
+
+// Contacts
+$contacts = array();
 $points = array();
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
-$companystatic = new Societe($db);
 
+// Modifiez la boucle while pour collecter les IDs
+$socIds = array();
+$rawPoints = array();
 while ($obj = $db->fetch_object($resql)) {
+    $socIds[] = (int) $obj->rowid;
+    $rawPoints[] = $obj;
+}
+
+// Requête contacts
+$contacts = array();
+if (!empty($socIds)) {
+    $sqlContacts = "SELECT
+            sp.fk_soc,
+            sp.firstname,
+            sp.lastname,
+            sp.email,
+            sp.phone,
+            sp.phone_mobile,
+			sp.poste
+        FROM ".MAIN_DB_PREFIX."socpeople as sp
+        WHERE sp.fk_soc IN (".implode(',', $socIds).")
+          AND sp.statut = 1
+        ORDER BY sp.fk_soc, sp.rowid ASC";
+
+    $resContacts = $db->query($sqlContacts);
+    if ($resContacts) {
+        while ($objC = $db->fetch_object($resContacts)) {
+            $socId = (int) $objC->fk_soc;
+            $contacts[$socId][] = array(
+                'name'   => trim($objC->firstname.' '.$objC->lastname),
+                'email'  => $objC->email        ?: '',
+                'phone'  => $objC->phone        ?: '',
+                'mobile' => $objC->phone_mobile ?: '',
+				'poste'  => $objC->poste        ?: '',
+            );
+        }
+    }
+}
+
+// Boucle principale
+$companystatic = new Societe($db);
+foreach ($rawPoints as $obj) {
     $companystatic->id          = (int) $obj->rowid;
     $companystatic->client      = (int) $obj->client;
     $companystatic->fournisseur = (int) $obj->fournisseur;
-
 
     $points[] = array(
         'id'          => (int) $obj->rowid,
@@ -123,8 +169,13 @@ while ($obj = $db->fetch_object($resql)) {
         'fournisseur' => (int) $obj->fournisseur,
         'typeHtml'    => $companystatic->getTypeUrl(1),
         'typent'      => $obj->typent_libelle ?: '',
+        'contacts'    => $contacts[(int) $obj->rowid] ?? array()
     );
 }
+
+//
+
+
 echo json_encode(array(
 	'success' => true,
 	'points'  => $points
