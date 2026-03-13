@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2023		Laurent Destailleur			<eldy@users.sourceforge.net>
- * Copyright (C) 2026		SuperAdmin
+ * Copyright (C) 2026		ForLead 				<contact@forlead.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
  * \ingroup geotiers
  * \brief   Example hook overload.
  *
- * TODO: Write detailed description here.
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonhookactions.class.php';

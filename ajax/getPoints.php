@@ -1,5 +1,14 @@
 <?php
-require '../../../main.inc.php';
+
+if (file_exists('../../../main.inc.php')) {
+    require '../../../main.inc.php';
+} elseif (file_exists('../../main.inc.php')) {
+    require '../../main.inc.php';
+} else {
+    header('HTTP/1.0 500 Internal Server Error ');
+    print 'Include of main fails';
+    exit();
+}
 top_httphead('application/json; charset=UTF-8');
 if (!$user->id) {
 	http_response_code(401);
