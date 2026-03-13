@@ -1,96 +1,96 @@
-# GEOTIERS FOR [DOLIBARR ERP & CRM](https://www.dolibarr.org)
+# GEOTIERS POUR [DOLIBARR ERP & CRM](https://www.dolibarr.org)
 
-## Features
+Module développé par **[ForLead](https://forlead.fr)** — contact@forlead.fr
 
-Description of the module...
+## Présentation
+
+**GeoTiers** est un module de cartographie interactive des **tiers** (clients, prospects, fournisseurs) pour Dolibarr ERP & CRM.
+
+Il offre une carte Leaflet/OpenStreetMap intégrée à Dolibarr, permettant de visualiser géographiquement l'ensemble de vos tiers, de les filtrer par nature, et d'explorer leurs informations clés directement depuis la carte, sans quitter votre ERP.
 
 <!--
 ![Screenshot geotiers](img/screenshot_geotiers.png?raw=true "GeoTiers"){imgmd}
 -->
 
-Other external modules are available on [Dolistore.com](https://www.dolistore.com).
+## Fonctionnalités
 
-## Translations
+- 🗺️ **Carte interactive** basée sur Leaflet / OpenStreetMap
+- 📍 **Marqueurs colorés par nature** : clients, prospects, fournisseurs, multi-type (couleurs personnalisables)
+- 🔍 **Filtres dynamiques** : filtrer par tiers, afficher/masquer clients, prospects, fournisseurs
+- 👤 **Popup détaillée** au clic sur un marqueur : nom, adresse, type de société, nature (C/P/F), lien Street View
+- 📞 **Contacts associés** affichés dans la popup : nom, poste, téléphone fixe, mobile, email
+- 💼 **Commerciaux assignés** affichés dans la popup : nom, téléphone, mobile, email
+- 📏 **Filtre par rayon** : saisir un rayon en km depuis n'importe quel point pour n'afficher que les tiers à proximité
+- 🔄 **Réinitialisation du rayon** en un clic
+- 🔢 **Compteur de tiers affichés** mis à jour en temps réel
+- 🖥️ **Mode plein écran** de la carte
+- 🌍 **Lien Google Street View** intégré dans chaque popup
 
-Translations can be completed manually by editing files in the module directories under `langs`.
+## Paramétrage
 
-<!--
-This module contains also a sample configuration for Transifex, under the hidden directory [.tx](.tx), so it is possible to manage translation using this service.
+Depuis le menu **Configuration > Modules > GeoTiers > Paramètres** :
 
-For more information, see the [translator's documentation](https://wiki.dolibarr.org/index.php/Translator_documentation).
+- Couleur des marqueurs clients
+- Couleur des marqueurs fournisseurs
+- Couleur des marqueurs prospects
+- Couleur des marqueurs multi-type
 
-There is a [Transifex project](https://transifex.com/projects/p/dolibarr-module-template) for this module.
--->
+## Traductions
 
+Les traductions sont gérables manuellement en éditant les fichiers dans le répertoire `langs/` du module.
+
+Langues actuellement disponibles :
+
+- 🇫🇷 Français (`fr_FR`)
+- 🇺🇸 English (en_US)
+
+Les contributions de traduction sont les bienvenues.
 
 ## Installation
 
-Prerequisites: You must have Dolibarr ERP & CRM software installed. You can download it from [Dolistore.org](https://www.dolibarr.org).
-You can also get a ready-to-use instance in the cloud from https://saas.dolibarr.org
+**Prérequis :** Dolibarr ERP & CRM doit être installé sur votre serveur.  
+Téléchargeable sur [dolibarr.org](https://www.dolibarr.org) ou disponible en mode SaaS sur [saas.dolibarr.org](https://saas.dolibarr.org).
 
+### Depuis le fichier ZIP (interface graphique)
 
-### From the ZIP file and GUI interface
+1. Téléchargez le fichier `module_geotiers-x.x.x.zip` depuis le [Dolistore](https://www.dolistore.com)
+2. Dans Dolibarr, allez dans **Accueil > Configuration > Modules > Déployer un module externe**
+3. Uploadez le fichier ZIP
+4. Activez le module depuis la liste des modules
 
-If the module is a ready-to-deploy zip file, so with a name `module_xxx-version.zip` (e.g., when downloading it from a marketplace like [Dolistore](https://www.dolistore.com)),
-go to menu `Home> Setup> Modules> Deploy external module` and upload the zip file.
+### Étapes finales
 
-<!--
+Depuis votre navigateur :
 
-Note: If this screen tells you that there is no "custom" directory, check that your setup is correct:
+1. Connectez-vous à Dolibarr en tant que super-administrateur
+2. Allez dans **Configuration > Modules**
+3. Recherchez **GeoTiers** et activez-le
+4. Rendez-vous dans les **Paramètres** du module pour personnaliser les couleurs des marqueurs
+5. Assurez-vous que vos tiers ont bien une adresse complète (adresse, code postal, ville) pour être géolocalisés
 
-- In your Dolibarr installation directory, edit the `htdocs/conf/conf.php` file and check that following lines are not commented:
+## Prérequis techniques
 
-    ```php
-    //$dolibarr_main_url_root_alt ...
-    //$dolibarr_main_document_root_alt ...
-    ```
+- Les tiers doivent avoir une **adresse renseignée** (adresse, code postal, ville)
 
-- Uncomment them if necessary (delete the leading `//`) and assign the proper value according to your Dolibarr installation
+## Support
 
-    For example :
+Pour toute question ou demande de support :
 
-    - UNIX:
-        ```php
-        $dolibarr_main_url_root_alt = '/custom';
-        $dolibarr_main_document_root_alt = '/var/www/Dolibarr/htdocs/custom';
-        ```
+- 🌐 Site : [forlead.fr](https://forlead.fr)
+- 📧 Email : [contact@forlead.fr](mailto:contact@forlead.fr)
 
-    - Windows:
-        ```php
-        $dolibarr_main_url_root_alt = '/custom';
-        $dolibarr_main_document_root_alt = 'C:/My Web Sites/Dolibarr/htdocs/custom';
-        ```
--->
+Les bugs peuvent être signalés via la page du module sur le Dolistore.
 
-<!--
+## Autres modules
 
-### From a GIT repository
+D'autres modules externes sont disponibles sur [Dolistore.com](https://www.dolistore.com).
 
-Clone the repository in `$dolibarr_main_document_root_alt/geotiers`
-
-```shell
-cd ....../custom
-git clone git@github.com:gitlogin/geotiers.git geotiers
-```
-
--->
-
-### Final steps
-
-Using your browser:
-
-  - Log into Dolibarr as a super-administrator
-  - Go to "Setup"> "Modules"
-  - You should now be able to find and enable the module
-
-
-
-## Licenses
-
-### Main code
-
-GPLv3 or (at your option) any later version. See file COPYING for more information.
+## Licences
 
 ### Documentation
 
-All texts and readme's are licensed under [GFDL](https://www.gnu.org/licenses/fdl-1.3.en.html).
+Tous les textes et fichiers README sont sous licence [GFDL](https://www.gnu.org/licenses/fdl-1.3.en.html).
+
+---
+
+*Module GeoTiers — © [ForLead](https://forlead.fr) — [contact@forlead.fr](mailto:contact@forlead.fr)*
