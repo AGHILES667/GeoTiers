@@ -7,7 +7,7 @@
 # Module label 'ModuleGeoTiersName'
 ModuleGeoTiersName = Geo Tiers
 # Module description 'ModuleGeoTiersDesc'
-ModuleGeoTiersDesc = Affiche les tiers sur une carte interactive.
+ModuleGeoTiersDesc = Show Third Paries in interactive planning.
 
 #
 # Admin page
