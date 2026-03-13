@@ -2,7 +2,7 @@
 /* Copyright (C) 2004-2018	Laurent Destailleur			<eldy@users.sourceforge.net>
  * Copyright (C) 2018-2019	Nicolas ZABOURI				<info@inovea-conseil.com>
  * Copyright (C) 2019-2024	Frédéric France				<frederic.france@free.fr>
- * Copyright (C) 2026		SuperAdmin
+ * Copyright (C) 2026		ForLead 					<contact@forlead.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,14 +47,14 @@ class modGeoTiers extends DolibarrModules
 
 		// Id for module (must be unique).
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
-		$this->numero = 710003; // TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve an id number for your module
+		$this->numero = 193004; // TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve an id number for your module
 
 		// Key text used to identify module (for permissions, menus, etc...)
 		$this->rights_class = 'geotiers';
 
 		// Family can be 'base' (core modules),'crm','financial','hr','projects','products','ecm','technic' (transverse modules),'interface' (link with external tools),'other','...'
 		// It is used to group modules by family in module setup page
-		$this->family = "crm";
+		$this->family = "ForLead";
 
 		// Module position in the family on 2 digits ('01', '10', '20', ...)
 		$this->module_position = '300';
@@ -87,7 +87,7 @@ class modGeoTiers extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		// To use a supported fa-xxx css style of font awesome, use this->picto='xxx'
-		$this->picto = 'map-marker-alt';
+		$this->picto = 'LogoFL@geotiers';
 
 		// Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
 		$this->module_parts = array(
@@ -119,13 +119,7 @@ class modGeoTiers extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			/* BEGIN MODULEBUILDER HOOKSCONTEXTS */
-			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
-				//   'entity' => '0',
-			),
+			'hooks' => array('thirdpartycard', 'thirdpartylist', 'globalcard'),
 			/* END MODULEBUILDER HOOKSCONTEXTS */
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -292,6 +286,18 @@ class modGeoTiers extends DolibarrModules
 		// Permissions provided by this module
 		$this->rights = array();
 		$r = 0;
+
+		$this->rights[$r][0] = 7100031;
+		$this->rights[$r][1] = 'Voir que mes tiers';
+		$this->rights[$r][3] = 1;
+		$this->rights[$r][4] = 'read';
+
+		$r++;
+
+		$this->rights[$r][0] = 7100032;
+		$this->rights[$r][1] = 'Voir tous les tiers';
+		$this->rights[$r][3] = 0;
+		$this->rights[$r][4] = 'write';
 		// Add here entries to declare new permissions
 		/* BEGIN MODULEBUILDER PERMISSIONS */
 		/*
@@ -320,41 +326,43 @@ class modGeoTiers extends DolibarrModules
 		$r = 0;
 		// Add here entries to declare new menus
 		/* BEGIN MODULEBUILDER TOPMENU */
-		$this->menu[$r++] = array(
-			'fk_menu' => '', // Will be stored into mainmenu + leftmenu. Use '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type' => 'top', // This is a Top menu entry
-			'titre' => 'ModuleGeoTiersName',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle"'),
-			'mainmenu' => 'geotiers',
-			'leftmenu' => '',
-			'url' => '/geotiers/geotiersindex.php',
-			'langs' => 'geotiers@geotiers', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position' => 1000 + $r,
-			'enabled' => 'isModEnabled("geotiers")', // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
-			'perms' => '1', // Use 'perms'=>'$user->hasRight("geotiers", "myobject", "read")' if you want your menu with a permission rules
-			'target' => '',
-			'user' => 2, // 0=Menu for internal users, 1=external users, 2=both
-		);
+		// $this->menu[$r++] = array(
+		// 	'fk_menu' => '', // Will be stored into mainmenu + leftmenu. Use '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+		// 	'type' => 'top', // This is a Top menu entry
+		// 	'titre' => 'ModuleGeoTiersName',
+		// 	'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle"'),
+		// 	'mainmenu' => 'geotiers',
+		// 	'leftmenu' => '',
+		// 	'url' => '/geotiers/geotiers.php',
+		// 	'langs' => 'geotiers@geotiers', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+		// 	'position' => 1000 + $r,
+		// 	'enabled' => 'isModEnabled("geotiers")', // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
+		// 	'perms' => '1', // Use 'perms'=>'$user->hasRight("geotiers", "myobject", "read")' if you want your menu with a permission rules
+		// 	'target' => '',
+		// 	'user' => 2, // 0=Menu for internal users, 1=external users, 2=both
+		// );
 		/* END MODULEBUILDER TOPMENU */
 
 		/* BEGIN MODULEBUILDER LEFTMENU MYOBJECT */
-		/*
+		
 		$this->menu[$r++]=array(
-			'fk_menu' => 'fk_mainmenu=geotiers',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'fk_menu' => 'fk_mainmenu=companies',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',                          // This is a Left menu entry
-			'titre' => 'MyObject',
-			'prefix' => img_picto('', $this->picto, 'class="pictofixedwidth valignmiddle paddingright"'),
-			'mainmenu' => 'geotiers',
-			'leftmenu' => 'myobject',
-			'url' => '/geotiers/geotiersindex.php',
+			'titre' => 'GeoTiersMap',
+			'prefix' => 'fa fa-map-marker-alt',
+			// 'mainmenu' => 'geotiers',
+			// 'leftmenu' => 'myobject',
+			'url' => '/geotiers/geotiers.php',
 			'langs' => 'geotiers@geotiers',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position' => 1000 + $r,
-			'enabled' => 'isModEnabled("geotiers")', // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
-			'perms' => '$user->hasRight("geotiers", "myobject", "read")',
+			'enabled' => 'isModEnabled("geotiers") && $user->hasRight("geotiers", "read")' , // Define condition to show or hide menu entry. Use 'isModEnabled("geotiers")' if entry must be visible if module is enabled.
+			'perms' => '$user->hasRight("geotiers", "read")',
 			'target' => '',
 			'user' => 2,				                // 0=Menu for internal users, 1=external users, 2=both
 			'object' => 'MyObject'
 		);
+
+		/*
 		$this->menu[$r++]=array(
 			'fk_menu' => 'fk_mainmenu=geotiers,fk_leftmenu=myobject',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type' => 'left',			                // This is a Left menu entry
@@ -467,60 +475,55 @@ class modGeoTiers extends DolibarrModules
 	 */
 	public function init($options = '')
 	{
-		global $conf, $langs;
-
-		// Create tables of module at module activation
-		//$result = $this->_load_tables('/install/mysql/', 'geotiers');
-		$result = $this->_load_tables('/geotiers/sql/');
-		if ($result < 0) {
-			return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
-		}
-
-		// Create extrafields during init
-		//include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-		//$extrafields = new ExtraFields($this->db);
-		//$result0=$extrafields->addExtraField('geotiers_separator1', "Separator 1", 'separator', 1,  0, 'thirdparty',   0, 0, '', array('options'=>array(1=>1)), 1, '', 1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result1=$extrafields->addExtraField('geotiers_myattr1', "New Attr 1 label", 'boolean', 1,  3, 'thirdparty',   0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result2=$extrafields->addExtraField('geotiers_myattr2', "New Attr 2 label", 'varchar', 1, 10, 'project',      0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result3=$extrafields->addExtraField('geotiers_myattr3', "New Attr 3 label", 'varchar', 1, 10, 'bank_account', 0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result4=$extrafields->addExtraField('geotiers_myattr4', "New Attr 4 label", 'select',  1,  3, 'thirdparty',   0, 1, '', array('options'=>array('code1'=>'Val1','code2'=>'Val2','code3'=>'Val3')), 1,'', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-		//$result5=$extrafields->addExtraField('geotiers_myattr5', "New Attr 5 label", 'text',    1, 10, 'user',         0, 0, '', '', 1, '', -1, 0, '', '', 'geotiers@geotiers', 'isModEnabled("geotiers")');
-
-		// Permissions
-		$this->remove($options);
+		global $db;
 
 		$sql = array();
 
-		// Document templates
-		$moduledir = dol_sanitizeFileName('geotiers');
-		$myTmpObjects = array();
-		$myTmpObjects['MyObject'] = array('includerefgeneration' => 0, 'includedocgeneration' => 0);
+		dol_include_once('/core/class/extrafields.class.php');
+		$extra = new ExtraFields($db);
 
-		foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
-			if ($myTmpObjectArray['includerefgeneration']) {
-				$src = DOL_DOCUMENT_ROOT.'/install/doctemplates/'.$moduledir.'/template_myobjects.odt';
-				$dirodt = DOL_DATA_ROOT.($conf->entity > 1 ? '/'.$conf->entity : '').'/doctemplates/'.$moduledir;
-				$dest = $dirodt.'/template_myobjects.odt';
+		$fieldName = 'fl_geo';
+		$elementType = 'societe';
 
-				if (file_exists($src) && !file_exists($dest)) {
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-					dol_mkdir($dirodt);
-					$result = dol_copy($src, $dest, '0', 0);
-					if ($result < 0) {
-						$langs->load("errors");
-						$this->error = $langs->trans('ErrorFailToCopyFile', $src, $dest);
-						return 0;
-					}
-				}
+		$fieldConfig = array(
+			'label' => 'Coordonnées GPS',
+			'type'  => 'varchar',
+			'help'  => 'Latitude,Longitude'
+		);
 
-				$sql = array_merge($sql, array(
-					"DELETE FROM ".$this->db->prefix()."document_model WHERE nom = 'standard_".strtolower($myTmpObjectKey)."' AND type = '".$this->db->escape(strtolower($myTmpObjectKey))."' AND entity = ".((int) $conf->entity),
-					"INSERT INTO ".$this->db->prefix()."document_model (nom, type, entity) VALUES('standard_".strtolower($myTmpObjectKey)."', '".$this->db->escape(strtolower($myTmpObjectKey))."', ".((int) $conf->entity).")",
-					"DELETE FROM ".$this->db->prefix()."document_model WHERE nom = 'generic_".strtolower($myTmpObjectKey)."_odt' AND type = '".$this->db->escape(strtolower($myTmpObjectKey))."' AND entity = ".((int) $conf->entity),
-					"INSERT INTO ".$this->db->prefix()."document_model (nom, type, entity) VALUES('generic_".strtolower($myTmpObjectKey)."_odt', '".$this->db->escape(strtolower($myTmpObjectKey))."', ".((int) $conf->entity).")"
-				));
+		// Check if extrafield exists
+		$resql = $db->query("SELECT rowid FROM ".MAIN_DB_PREFIX."extrafields
+			WHERE elementtype='".$db->escape($elementType)."'
+			AND name='".$db->escape($fieldName)."'");
+
+		if ($resql && $db->num_rows($resql) == 0) {
+
+			$result = $extra->addExtraField(
+				$fieldName,                 // attrname
+				$fieldConfig['label'],      // label
+				$fieldConfig['type'],       // type
+				100,                        // pos
+				255,                        // size
+				$elementType,               // elementtype
+				0,                          // unique
+				0,                          // required
+				'',                         // default
+				'',                         // param
+				1,                          // alwayseditable
+				'',                         // perms
+				3,                          // list
+				$fieldConfig['help']        // help
+			);
+
+			if ($result <= 0) {
+				return -1;
 			}
 		}
+
+		// Enable extrafield
+		$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 1
+			WHERE elementtype='".$db->escape($elementType)."'
+			AND name='".$db->escape($fieldName)."'");
 
 		return $this->_init($sql, $options);
 	}
@@ -535,7 +538,18 @@ class modGeoTiers extends DolibarrModules
 	 */
 	public function remove($options = '')
 	{
+		global $db;
+
 		$sql = array();
+
+		$fieldName = 'fl_geo';
+		$elementType = 'societe';
+
+		// Disable extrafield but keep data
+		$db->query("UPDATE ".MAIN_DB_PREFIX."extrafields SET enabled = 0
+					WHERE elementtype='".$db->escape($elementType)."'
+					AND name='".$db->escape($fieldName)."'");
+
 		return $this->_remove($sql, $options);
 	}
 }
